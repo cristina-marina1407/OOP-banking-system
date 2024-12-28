@@ -41,7 +41,9 @@ public class PrintUsers implements CommandInterface {
             for (Account account : user.getAccounts()) {
                 ObjectNode accountNode = objectMapper.createObjectNode();
                 accountNode.put("IBAN", account.getIban());
-                accountNode.put("balance", account.getBalance());
+                String formatted = String.format("%.2f", account.getBalance());
+                double formattedBalance = Double.parseDouble(formatted);
+                accountNode.put("balance", formattedBalance);
                 accountNode.put("currency", account.getCurrency());
                 accountNode.put("type", account.getType());
 

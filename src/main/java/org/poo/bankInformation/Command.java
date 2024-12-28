@@ -8,21 +8,29 @@ public class Command {
     private String command;
     private String email;
     private String account;
+    private String newPlanType;
+    private String role;
     private String currency;
-    private double amount;
-    private double minBalance;
     private String target;
     private String description;
     private String cardNumber;
     private String commerciant;
-    private int timestamp;
-    private int startTimestamp;
-    private int endTimestamp;
     private String receiver;
     private String alias;
     private String accountType;
+    private String splitPaymentType;
+    private String type;
+    private String location;
+    private int timestamp;
+    private int startTimestamp;
+    private int endTimestamp;
     private double interestRate;
+    private double spendingLimit;
+    private double depositLimit;
+    private double amount;
+    private double minBalance;
     private List<String> accounts;
+    private List<Double> amountForUsers;
 
     public Command(final CommandInput commandInput) {
         this.command = commandInput.getCommand();
@@ -43,6 +51,14 @@ public class Command {
         this.accountType = commandInput.getAccountType();
         this.interestRate = commandInput.getInterestRate();
         this.accounts = commandInput.getAccounts();
+        this.newPlanType = commandInput.getNewPlanType();
+        this.role = commandInput.getRole();
+        this.splitPaymentType = commandInput.getSplitPaymentType();
+        this.type = commandInput.getType();
+        this.location = commandInput.getLocation();
+        this.spendingLimit = commandInput.getSpendingLimit();
+        this.depositLimit = commandInput.getDepositLimit();
+        this.amountForUsers = commandInput.getAmountForUsers();
     }
 
     /**
@@ -295,5 +311,69 @@ public class Command {
      */
     public void setAccounts(final List<String> accounts) {
         this.accounts = accounts;
+    }
+
+    public String getNewPlanType() {
+        return newPlanType;
+    }
+
+    public void setNewPlanType(String newPlanType) {
+        this.newPlanType = newPlanType;
+    }
+
+    public String getRole() {
+        return role;
+    }
+
+    public void setRole(String role) {
+        this.role = role;
+    }
+
+    public String getSplitPaymentType() {
+        return splitPaymentType;
+    }
+
+    public void setSplitPaymentType(String splitPaymentType) {
+        this.splitPaymentType = splitPaymentType;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
+
+    public String getLocation() {
+        return location;
+    }
+
+    public void setLocation(String location) {
+        this.location = location;
+    }
+
+    public double getSpendingLimit() {
+        return spendingLimit;
+    }
+
+    public void setSpendingLimit(double spendingLimit) {
+        this.spendingLimit = spendingLimit;
+    }
+
+    public double getDepositLimit() {
+        return depositLimit;
+    }
+
+    public void setDepositLimit(double depositLimit) {
+        this.depositLimit = depositLimit;
+    }
+
+    public List<Double> getAmountForUsers() {
+        return amountForUsers;
+    }
+
+    public void setAmountForUsers(List<Double> amountForUsers) {
+        this.amountForUsers = amountForUsers;
     }
 }

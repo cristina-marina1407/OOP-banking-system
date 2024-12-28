@@ -16,7 +16,7 @@ public class WithdrawSavings implements CommandInterface {
     private static final int MINIMUM_AGE = 21;
     private Command command;
     private List<User> users;
-    private final ArrayNode output;
+    private ArrayNode output;
 
     public WithdrawSavings(final List<User> users, final Command command, final ArrayNode output) {
         this.command = command;

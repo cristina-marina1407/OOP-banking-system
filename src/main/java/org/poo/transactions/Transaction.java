@@ -16,6 +16,7 @@ public class Transaction {
     private String card;
     private String cardHolder;
     private String commerciant;
+    private String newPlanType;
     private List<String> involvedAccounts;
     private String insufficientAccount;
 
@@ -33,6 +34,7 @@ public class Transaction {
         this.card = builder.card;
         this.cardHolder = builder.cardHolder;
         this.commerciant = builder.commerciant;
+        this.newPlanType = builder.newPlanType;
         this.involvedAccounts = builder.involvedAccounts;
         this.insufficientAccount = builder.insufficientAccount;
     }
@@ -54,6 +56,7 @@ public class Transaction {
         private String card;
         private String cardHolder;
         private String commerciant;
+        private String newPlanType;
         private List<String> involvedAccounts;
         private String insufficientAccount;
 
@@ -251,6 +254,19 @@ public class Transaction {
          */
         public TransactionBuilder withdrawSavingsError() {
             this.type = "withdrawSavingsError";
+            return this;
+        }
+
+        public TransactionBuilder upgradePlan(final String givenNewPlanType,
+                                              final String givenAccount) {
+            this.type = "upgradePlan";
+            this.newPlanType = givenNewPlanType;
+            this.account = givenAccount;
+            return this;
+        }
+
+        public TransactionBuilder upgradePlanError() {
+            this.type = "upgradePlanError";
             return this;
         }
 
@@ -471,5 +487,13 @@ public class Transaction {
      */
     public void setClassicAccount(final String classicAccount) {
         this.classicAccount = classicAccount;
+    }
+
+    public String getNewPlanType() {
+        return newPlanType;
+    }
+
+    public void setNewPlanType(String newPlanType) {
+        this.newPlanType = newPlanType;
     }
 }

@@ -14,6 +14,7 @@ public class User {
     private String email;
     private String birthDate;
     private String occupation;
+    private String servicePlan;
     private List<Account> accounts;
 
     public User(final UserInput userInput) {
@@ -22,6 +23,11 @@ public class User {
         this.email = userInput.getEmail();
         this.birthDate = userInput.getBirthDate();
         this.occupation = userInput.getOccupation();
+        if (this.occupation.equals("student")) {
+            this.servicePlan = "student";
+        } else {
+            this.servicePlan = "standard";
+        }
         this.accounts = new ArrayList<>();
     }
 
@@ -117,5 +123,19 @@ public class User {
      */
     public void setOccupation(final String occupation) {
         this.occupation = occupation;
+    }
+
+    /**
+     * @return the servicePlan
+     */
+    public String getServicePlan() {
+        return servicePlan;
+    }
+
+    /**
+     * @param servicePlan the servicePlan to set
+     */
+    public void setServicePlan(String servicePlan) {
+        this.servicePlan = servicePlan;
     }
 }

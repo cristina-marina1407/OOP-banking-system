@@ -29,7 +29,7 @@ public class DeleteAccount implements CommandInterface {
     public void execute() {
         ObjectMapper objectMapper = new ObjectMapper();
         ObjectNode resultNode = objectMapper.createObjectNode();
-        resultNode.put("command", "withdrawSavings");
+        resultNode.put("command", "deleteAccount");
         ObjectNode outputNode = objectMapper.createObjectNode();
 
         int accountFound = 0;

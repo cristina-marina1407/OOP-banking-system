@@ -20,6 +20,7 @@ import org.poo.commands.cardCommands.DeleteCard;
 import org.poo.commands.payCommands.PayOnline;
 import org.poo.commands.payCommands.SendMoney;
 import org.poo.commands.payCommands.SplitPayment;
+import org.poo.commands.planCommands.UpgradePlan;
 import org.poo.commands.printCommands.PrintTransactions;
 import org.poo.commands.printCommands.PrintUsers;
 import org.poo.commands.reportCommands.Report;
@@ -88,6 +89,8 @@ public final  class CommandFactory {
                 return new SpendingReport(users, command, output);
             case "withdrawSavings":
                 return new WithdrawSavings(users, command, output);
+            case "upgradePlan":
+                return new UpgradePlan(users, command, output, graph);
             default:
                 return null;
         }

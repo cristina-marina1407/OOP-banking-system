@@ -30,6 +30,7 @@ public class SendMoney implements CommandInterface {
     public void execute() {
         Account sender = null;
         Account receiver = null;
+        User senderUser = null;
         String senderAlias = command.getAccount();
         String receiverAlias = command.getReceiver();
         for (User user : users) {
@@ -37,6 +38,7 @@ public class SendMoney implements CommandInterface {
             for (Account account : user.getAccounts()) {
                 if (aliases.containsKey(senderAlias) && !aliases.containsKey(receiverAlias)) {
                     if (account.getIban().equals(senderAlias)) {
+                        senderUser = user;
                         sender = account;
                     } else if (account.getIban().equals(command.getReceiver())) {
                         receiver = account;
@@ -44,18 +46,21 @@ public class SendMoney implements CommandInterface {
                 } else if (aliases.containsKey(receiverAlias)
                            && !aliases.containsKey(senderAlias)) {
                     if (account.getIban().equals(receiverAlias)) {
+                        senderUser = user;
                         sender = account;
                     } else if (account.getIban().equals(command.getReceiver())) {
                         receiver = account;
                     }
                 } else if (aliases.containsKey(senderAlias) && aliases.containsKey(receiverAlias)) {
                     if (account.getIban().equals(senderAlias)) {
+                        senderUser = user;
                         sender = account;
                     } else if (account.getIban().equals(receiverAlias)) {
                         receiver = account;
                     }
                 } else {
                     if (account.getIban().equals(command.getAccount())) {
+                        senderUser = user;
                         sender = account;
                     } else if (account.getIban().equals(command.getReceiver())) {
                         receiver = account;
@@ -70,6 +75,14 @@ public class SendMoney implements CommandInterface {
                                command.getAmount());
             /* checks if the sender has enough money to make the transaction */
             if (sender.getBalance() >= command.getAmount()) {
+                if (senderUser.getServicePlan().equals("standard")) {
+                    sender.setBalance(sender.getBalance() - newAmount * 0.2);
+                }
+
+                if (senderUser.getServicePlan().equals("silver") && command.getAmount() > 500) {
+                    sender.setBalance(sender.getBalance() - newAmount * 0.1);
+                }
+
                 sender.setBalance(sender.getBalance() - command.getAmount());
                 receiver.setBalance(receiver.getBalance() + newAmount);
                 /* creates the transactions for the both accounts and adds them

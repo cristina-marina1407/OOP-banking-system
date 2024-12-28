@@ -217,6 +217,24 @@ public class PrintTransactionsJson {
         return transactionNode;
     }
 
+    public ObjectNode printUpgradePlan() {
+        ObjectMapper objectMapper = new ObjectMapper();
+        ObjectNode transactionNode = objectMapper.createObjectNode();
+        transactionNode.put("description", transaction.getDescription());
+        transactionNode.put("timestamp", transaction.getTimestamp());
+        transactionNode.put("accountIBAN", transaction.getAccount());
+        transactionNode.put("newPlanType", transaction.getNewPlanType());
+        return transactionNode;
+    }
+
+    public ObjectNode printUpgradePlanError() {
+        ObjectMapper objectMapper = new ObjectMapper();
+        ObjectNode transactionNode = objectMapper.createObjectNode();
+        transactionNode.put("description", transaction.getDescription());
+        transactionNode.put("timestamp", transaction.getTimestamp());
+        return transactionNode;
+    }
+
     /**
      * @return the transaction
      */
