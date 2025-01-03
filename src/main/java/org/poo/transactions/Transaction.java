@@ -270,6 +270,16 @@ public class Transaction {
             return this;
         }
 
+        public TransactionBuilder cashWithdrawl() {
+            this.type = "cashWithdrawl";
+            return this;
+        }
+
+        public TransactionBuilder cashWithdrawlError() {
+            this.type = "cashWithdrawlError";
+            return this;
+        }
+
         /**
          * Builds the transaction.
          * @return the transaction

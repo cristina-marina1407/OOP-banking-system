@@ -235,6 +235,23 @@ public class PrintTransactionsJson {
         return transactionNode;
     }
 
+    public ObjectNode printCashWithdrawal() {
+        ObjectMapper objectMapper = new ObjectMapper();
+        ObjectNode transactionNode = objectMapper.createObjectNode();
+        transactionNode.put("description", transaction.getDescription());
+        transactionNode.put("timestamp", transaction.getTimestamp());
+        transactionNode.put("amount", transaction.getAmount());
+        return transactionNode;
+    }
+
+    public ObjectNode printCashWithdrawalError() {
+        ObjectMapper objectMapper = new ObjectMapper();
+        ObjectNode transactionNode = objectMapper.createObjectNode();
+        transactionNode.put("description", transaction.getDescription());
+        transactionNode.put("timestamp", transaction.getTimestamp());
+        return transactionNode;
+    }
+
     /**
      * @return the transaction
      */

@@ -17,6 +17,7 @@ import org.poo.commands.cardCommands.CheckCardStatus;
 import org.poo.commands.cardCommands.CreateCard;
 import org.poo.commands.cardCommands.CreateOneTimeCard;
 import org.poo.commands.cardCommands.DeleteCard;
+import org.poo.commands.payCommands.CashWithdrawal;
 import org.poo.commands.payCommands.PayOnline;
 import org.poo.commands.payCommands.SendMoney;
 import org.poo.commands.payCommands.SplitPayment;
@@ -91,6 +92,8 @@ public final  class CommandFactory {
                 return new WithdrawSavings(users, command, output);
             case "upgradePlan":
                 return new UpgradePlan(users, command, output, graph);
+            case "cashWithdrawal":
+                return new CashWithdrawal(users, command, graph, output);
             default:
                 return null;
         }
