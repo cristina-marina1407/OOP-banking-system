@@ -72,6 +72,10 @@ public final class PrintHelper {
                 break;
             case "cashWithdrawalError":
                 transactionNode = printTransactionsJSON.printCashWithdrawalError();
+                break;
+            case "addInterest":
+                transactionNode = printTransactionsJSON.printAddInterest();
+                break;
             default:
                 break;
         }

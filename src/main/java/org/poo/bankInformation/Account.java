@@ -4,7 +4,9 @@ import org.poo.transactions.Transaction;
 import org.poo.utils.Utils;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class Account {
     private String iban;
@@ -16,6 +18,12 @@ public class Account {
     private List<Card> cards;
     private List<Transaction> transactions = new ArrayList<>();
 
+    private Map<String, Integer> transactionCountByCategory;
+    private Map<String, Double> cashbackReceivedByCategory;
+
+    private double totalSpentRON;
+
+
     public Account(final AccountBuilder builder) {
        this.iban = builder.iban;
        this.balance = builder.balance;
@@ -24,6 +32,11 @@ public class Account {
        this.type = builder.type;
        this.interestRate = builder.interestRate;
        this.cards = builder.cards;
+
+       this.transactionCountByCategory = builder.transactionCountByCategory;
+       this.cashbackReceivedByCategory = builder.cashbackReceivedByCategory;
+
+        this.totalSpentRON = builder.totalSpentRON;
     }
 
     /**
@@ -38,6 +51,11 @@ public class Account {
         private double interestRate;
         private List<Card> cards = new ArrayList<>();
 
+        private Map<String, Integer> transactionCountByCategory = new HashMap<>();
+        private Map<String, Double> cashbackReceivedByCategory = new HashMap<>();
+
+        private double totalSpentRON;
+
         /**
          * Constructs an AccountBuilder with the specified currency and type.
          * @param currency the currency of the account
@@ -49,6 +67,8 @@ public class Account {
             this.balance = 0;
             this.minBalance = 0;
             this.type = type;
+            this.interestRate = 0;
+            this.totalSpentRON = 0;
         }
 
         /**
@@ -74,6 +94,35 @@ public class Account {
         public Account build() {
             return new Account(this);
         }
+    }
+
+    public void addCashbackReceived(String category, double cashback) {
+        if (cashbackReceivedByCategory.containsKey(category)) {
+            double currentCashback = cashbackReceivedByCategory.get(category);
+            cashbackReceivedByCategory.put(category, currentCashback + cashback);
+        } else {
+            cashbackReceivedByCategory.put(category, cashback);
+        }
+    }
+
+    public void incrementTransactionCount(String category) {
+        if (transactionCountByCategory.containsKey(category)) {
+            transactionCountByCategory.put(category, transactionCountByCategory.get(category) + 1);
+        } else {
+            transactionCountByCategory.put(category, 1);
+        }
+    }
+
+    public int getTransactionCountForCategory(String category) {
+        if (transactionCountByCategory.containsKey(category)) {
+            return transactionCountByCategory.get(category);
+        } else {
+            return 0;
+        }
+    }
+
+    public void addToTotalSpentRON(double amountInRON) {
+        this.totalSpentRON += amountInRON;
     }
 
     /**
@@ -186,5 +235,29 @@ public class Account {
      */
     public void setMinBalance(final double minBalance) {
         this.minBalance = minBalance;
+    }
+
+    public Map<String, Integer> getTransactionCountByCategory() {
+        return transactionCountByCategory;
+    }
+
+    public void setTransactionCountByCategory(Map<String, Integer> transactionCountByCategory) {
+        this.transactionCountByCategory = transactionCountByCategory;
+    }
+
+    public Map<String, Double> getCashbackReceivedByCategory() {
+        return cashbackReceivedByCategory;
+    }
+
+    public void setCashbackReceivedByCategory(Map<String, Double> cashbackReceivedByCategory) {
+        this.cashbackReceivedByCategory = cashbackReceivedByCategory;
+    }
+
+    public double getTotalSpentRON() {
+        return totalSpentRON;
+    }
+
+    public void setTotalSpentRON(double totalSpentRON) {
+        this.totalSpentRON = totalSpentRON;
     }
 }

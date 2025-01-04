@@ -1,9 +1,11 @@
 package org.poo.commands.payCommands;
 
-import org.poo.bankInformation.Account;
-import org.poo.bankInformation.Command;
-import org.poo.bankInformation.Graph;
-import org.poo.bankInformation.User;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import org.poo.bankInformation.*;
+import org.poo.cashback.NrOfTransactions;
+import org.poo.cashback.SpendingThreshold;
 import org.poo.commands.commandLogic.CommandInterface;
 import org.poo.transactions.Transaction;
 
@@ -15,19 +17,28 @@ public class SendMoney implements CommandInterface {
     private List<User> users;
     private Graph graph;
     private Map<String, String> aliases;
+    private ArrayNode output;
+    private List<Commerciant> commerciants;
 
     public SendMoney(final List<User> users, final Command command, final Graph graph,
-                     final Map<String, String> aliases) {
+                     final Map<String, String> aliases, final ArrayNode output, final List<Commerciant> commerciants) {
         this.command = command;
         this.users = users;
         this.graph = graph;
         this.aliases = aliases;
+        this.output = output;
+        this.commerciants = commerciants;
     }
 
     /**
      * Sends money from one account to another
      */
     public void execute() {
+        ObjectMapper objectMapper = new ObjectMapper();
+        ObjectNode resultNode = objectMapper.createObjectNode();
+        resultNode.put("command", "sendMoney");
+        ObjectNode outputNode = objectMapper.createObjectNode();
+
         Account sender = null;
         Account receiver = null;
         User senderUser = null;
@@ -73,14 +84,15 @@ public class SendMoney implements CommandInterface {
             /* converts the amount to the currency of the receiver account */
             double newAmount = graph.convert(sender.getCurrency(), receiver.getCurrency(),
                                command.getAmount());
+            double commission = senderUser.calculateCommission(newAmount);
             /* checks if the sender has enough money to make the transaction */
-            if (sender.getBalance() >= command.getAmount()) {
+            if (sender.getBalance() >= command.getAmount() + commission) {
                 if (senderUser.getServicePlan().equals("standard")) {
-                    sender.setBalance(sender.getBalance() - newAmount * 0.2);
+                    sender.setBalance(sender.getBalance() - commission);
                 }
 
                 if (senderUser.getServicePlan().equals("silver") && command.getAmount() > 500) {
-                    sender.setBalance(sender.getBalance() - newAmount * 0.1);
+                    sender.setBalance(sender.getBalance() - commission);
                 }
 
                 sender.setBalance(sender.getBalance() - command.getAmount());
@@ -101,6 +113,21 @@ public class SendMoney implements CommandInterface {
                         .build();
                 sender.getTransactions().add(senderTransaction);
                 receiver.getTransactions().add(receiverTransaction);
+
+                String category = null;
+                Commerciant commerciantToPay = null;
+                for (Commerciant commerciant : commerciants) {
+                    if (commerciant.getAccount().equals(receiver.getIban())) {
+                        category = commerciant.getType();
+                        commerciantToPay = commerciant;
+                        break;
+                    }
+                }
+
+                if (commerciantToPay != null) {
+                    CashbackHelper.applyCashback(commerciantToPay, sender, category,
+                            senderTransaction, senderUser, graph, command);
+                }
             } else {
                 /* creates a transaction for the sender account in case of insufficient funds */
                 Transaction transaction;
@@ -110,6 +137,12 @@ public class SendMoney implements CommandInterface {
                         .build();
                 sender.getTransactions().add(transaction);
             }
+        } else {
+            outputNode.put("description", "User not found");
+            outputNode.put("timestamp", command.getTimestamp());
+            resultNode.set("output", outputNode);
+            resultNode.put("timestamp", command.getTimestamp());
+            output.add(resultNode);
         }
     }
 }

@@ -19,6 +19,8 @@ public class Transaction {
     private String newPlanType;
     private List<String> involvedAccounts;
     private String insufficientAccount;
+    private double interest;
+    private String category;
 
     public Transaction(final TransactionBuilder builder) {
         this.timestamp = builder.timestamp;
@@ -37,6 +39,8 @@ public class Transaction {
         this.newPlanType = builder.newPlanType;
         this.involvedAccounts = builder.involvedAccounts;
         this.insufficientAccount = builder.insufficientAccount;
+        this.interest = builder.interest;
+        this.category = builder.category;
     }
 
     /**
@@ -59,6 +63,8 @@ public class Transaction {
         private String newPlanType;
         private List<String> involvedAccounts;
         private String insufficientAccount;
+        private double interest;
+        private String category;
 
         /**
          * Constructs a TransactionBuilder with the specified timestamp, description and type.
@@ -79,6 +85,13 @@ public class Transaction {
          */
         public TransactionBuilder addAccount() {
             this.type = "addAccount";
+            return this;
+        }
+
+        public TransactionBuilder addInterest(final double givenInterest, final String givenCurrency) {
+            this.type = "addInterest";
+            this.interest = givenInterest;
+            this.currency = givenCurrency;
             return this;
         }
 
@@ -113,13 +126,17 @@ public class Transaction {
                                             final String givenReceiverIban,
                                             final double givenAmount,
                                             final String givenTransferType,
-                                            final String givenCurrency) {
+                                            final String givenCurrency
+                                            /*final String givenCategory,*/
+                                            /*final String givenCommerciant*/) {
             this.type = "sendMoney";
             this.senderIban = givenSenderIban;
             this.receiverIban = givenReceiverIban;
             this.amount = givenAmount;
             this.transferType = givenTransferType;
             this.currency = givenCurrency;
+//            this.category = givenCategory;
+//            this.commerciant = givenCommerciant;
             return this;
         }
 
@@ -171,10 +188,12 @@ public class Transaction {
          * @return the updated TransactionBuilder
          */
         public TransactionBuilder payOnline(final double givenAmount,
-                                            final String givenCommerciant) {
+                                            final String givenCommerciant,
+                                            final String givenCategory) {
             this.type = "payOnline";
             this.amount = givenAmount;
             this.commerciant = givenCommerciant;
+            this.category = givenCategory;
             return this;
         }
 
@@ -270,13 +289,14 @@ public class Transaction {
             return this;
         }
 
-        public TransactionBuilder cashWithdrawl() {
-            this.type = "cashWithdrawl";
+        public TransactionBuilder cashWithdrawl(final double givenAmount) {
+            this.type = "cashWithdrawal";
+            this.amount = givenAmount;
             return this;
         }
 
-        public TransactionBuilder cashWithdrawlError() {
-            this.type = "cashWithdrawlError";
+        public TransactionBuilder cashWithdrawalError() {
+            this.type = "cashWithdrawalError";
             return this;
         }
 
@@ -505,5 +525,21 @@ public class Transaction {
 
     public void setNewPlanType(String newPlanType) {
         this.newPlanType = newPlanType;
+    }
+
+    public double getInterest() {
+        return interest;
+    }
+
+    public void setInterest(double interest) {
+        this.interest = interest;
+    }
+
+    public String getCategory() {
+        return category;
+    }
+
+    public void setCategory(String category) {
+        this.category = category;
     }
 }

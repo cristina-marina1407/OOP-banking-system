@@ -252,6 +252,16 @@ public class PrintTransactionsJson {
         return transactionNode;
     }
 
+    public ObjectNode printAddInterest() {
+        ObjectMapper objectMapper = new ObjectMapper();
+        ObjectNode transactionNode = objectMapper.createObjectNode();
+        transactionNode.put("amount", transaction.getInterest());
+        transactionNode.put("currency", transaction.getCurrency());
+        transactionNode.put("description", transaction.getDescription());
+        transactionNode.put("timestamp", transaction.getTimestamp());
+        return transactionNode;
+    }
+
     /**
      * @return the transaction
      */

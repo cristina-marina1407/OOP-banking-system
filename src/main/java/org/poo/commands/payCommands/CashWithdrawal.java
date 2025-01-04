@@ -16,7 +16,7 @@ public class CashWithdrawal implements CommandInterface {
     private ArrayNode output;
     private Graph graph;
 
-    public CashWithdrawal(final List<User> users, final Command command, final Graph graph, final ArrayNode output) {
+    public CashWithdrawal(final List<User> users, final Command command, final ArrayNode output, final Graph graph) {
         this.command = command;
         this.users = users;
         this.output = output;
@@ -37,14 +37,22 @@ public class CashWithdrawal implements CommandInterface {
                 Card card = FindHelper.findCard(account.getCards(), command.getCardNumber());
                 if (card != null) {
                     accountFound = 1;
-                    double newAmount = graph.convert(account.getCurrency(), "RON", command.getAmount());
-                    if (account.getBalance() >= newAmount) {
+                    double newAmount = graph.convert("RON", account.getCurrency(), command.getAmount());
+                    double commission = user.calculateCommission(newAmount);
+                    if (account.getBalance() >= newAmount + commission) {
+                        if (user.getServicePlan().equals("standard")) {
+                            account.setBalance(account.getBalance() - commission);
+                        }
+
+                        if (user.getServicePlan().equals("silver") && command.getAmount() > 500) {
+                            account.setBalance(account.getBalance() - commission);
+                        }
                         Transaction transaction;
                         transaction =
                                 new Transaction.TransactionBuilder(
                                         command.getTimestamp(),
-                                        "Savings withdrawal", "cashWithdrawal")
-                                        .cashWithdrawl()
+                                        "Cash withdrawal of " + command.getAmount(), "cashWithdrawal")
+                                        .cashWithdrawl(command.getAmount())
                                         .build();
                         account.getTransactions().add(transaction);
                         account.setBalance(account.getBalance() - newAmount);
@@ -54,7 +62,7 @@ public class CashWithdrawal implements CommandInterface {
                     transaction = new Transaction.TransactionBuilder(command.getTimestamp(),
                             "Insufficient funds",
                             "cashWithdrawalError")
-                            .cashWithdrawlError()
+                            .cashWithdrawalError()
                             .build();
                     account.getTransactions().add(transaction);
                     break;
@@ -62,12 +70,7 @@ public class CashWithdrawal implements CommandInterface {
             }
 
             if (accountFound == 0) {
-                outputNode.put("error",
-                        "Account not found");
-                outputNode.put("timestamp", command.getTimestamp());
-                resultNode.set("output", outputNode);
-                resultNode.put("timestamp", command.getTimestamp());
-                output.add(resultNode);
+                outputNode.put("description", "Card not found");
                 outputNode.put("timestamp", command.getTimestamp());
                 resultNode.set("output", outputNode);
                 resultNode.put("timestamp", command.getTimestamp());
@@ -75,12 +78,7 @@ public class CashWithdrawal implements CommandInterface {
             }
 
         } else {
-            outputNode.put("error",
-                    "User not found");
-            outputNode.put("timestamp", command.getTimestamp());
-            resultNode.set("output", outputNode);
-            resultNode.put("timestamp", command.getTimestamp());
-            output.add(resultNode);
+            outputNode.put("description", "User not found");
             outputNode.put("timestamp", command.getTimestamp());
             resultNode.set("output", outputNode);
             resultNode.put("timestamp", command.getTimestamp());

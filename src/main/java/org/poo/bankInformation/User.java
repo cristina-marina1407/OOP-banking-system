@@ -41,6 +41,15 @@ public class User {
         return Period.between(birthday, currentDate).getYears();
     }
 
+    public double calculateCommission(final double amount) {
+        if (this.servicePlan.equals("standard")) {
+            return amount * 0.002;
+        } else if (this.servicePlan.equals("silver") && amount > 500) {
+            return amount * 0.001;
+        }
+        return 0;
+    }
+
     /**
      * @return the firstName
      */

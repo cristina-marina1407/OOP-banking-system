@@ -67,9 +67,9 @@ public final  class CommandFactory {
             case "deleteAccount":
                 return new DeleteAccount(users, command, output);
             case "payOnline":
-                return new PayOnline(users, command, graph, output);
+                return new PayOnline(users, command, graph, output, commerciants);
             case "sendMoney":
-                return new SendMoney(users, command, graph, aliases);
+                return new SendMoney(users, command, graph, aliases, output, commerciants);
             case "setAlias":
                 return new SetAlias(command, aliases);
             case "printTransactions":
@@ -93,7 +93,7 @@ public final  class CommandFactory {
             case "upgradePlan":
                 return new UpgradePlan(users, command, output, graph);
             case "cashWithdrawal":
-                return new CashWithdrawal(users, command, graph, output);
+                return new CashWithdrawal(users, command, output, graph);
             default:
                 return null;
         }

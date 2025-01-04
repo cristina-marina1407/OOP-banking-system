@@ -8,6 +8,7 @@ import org.poo.bankInformation.Command;
 import org.poo.bankInformation.User;
 import org.poo.commands.commandLogic.CommandInterface;
 import org.poo.commands.helperMethods.FindHelper;
+import org.poo.transactions.Transaction;
 
 import java.util.List;
 
@@ -33,6 +34,14 @@ public class AddInterest implements CommandInterface {
                 if (account.getType().equals("savings")) {
                     double interest = account.getBalance() * account.getInterestRate();
                     account.setBalance(account.getBalance() + interest);
+                    Transaction transaction;
+                    transaction =
+                            new Transaction.TransactionBuilder(
+                                    command.getTimestamp(),
+                                    "Interest rate income", "addInterest")
+                                    .addInterest(interest, account.getCurrency())
+                                    .build();
+                    account.getTransactions().add(transaction);
                     break;
                 } else {
                     ObjectMapper objectMapper = new ObjectMapper();

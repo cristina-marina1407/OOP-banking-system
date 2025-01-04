@@ -74,6 +74,7 @@ public class WithdrawSavings implements CommandInterface {
                                                 .withdrawSavingsError()
                                                 .build();
                                 account.getTransactions().add(transaction);
+                                break;
                             }
                         }
                         Transaction transaction;
