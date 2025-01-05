@@ -1,8 +1,6 @@
-package org.poo.commands.payCommands;
+package org.poo.cashback;
 
 import org.poo.bankInformation.*;
-import org.poo.cashback.NrOfTransactions;
-import org.poo.cashback.SpendingThreshold;
 import org.poo.transactions.Transaction;
 
 public class CashbackHelper {

@@ -4,8 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.poo.bankInformation.*;
-import org.poo.cashback.NrOfTransactions;
-import org.poo.cashback.SpendingThreshold;
+import org.poo.cashback.CashbackHelper;
 import org.poo.commands.commandLogic.CommandInterface;
 import org.poo.transactions.Transaction;
 
@@ -84,14 +83,15 @@ public class SendMoney implements CommandInterface {
             /* converts the amount to the currency of the receiver account */
             double newAmount = graph.convert(sender.getCurrency(), receiver.getCurrency(),
                                command.getAmount());
-            double commission = senderUser.calculateCommission(newAmount);
+            double ronAmount = graph.convert(sender.getCurrency(), "RON", newAmount);
+            double commission = senderUser.calculateCommission(newAmount, graph, sender);
             /* checks if the sender has enough money to make the transaction */
             if (sender.getBalance() >= command.getAmount() + commission) {
                 if (senderUser.getServicePlan().equals("standard")) {
                     sender.setBalance(sender.getBalance() - commission);
                 }
 
-                if (senderUser.getServicePlan().equals("silver") && command.getAmount() > 500) {
+                if (senderUser.getServicePlan().equals("silver") && ronAmount >= 500) {
                     sender.setBalance(sender.getBalance() - commission);
                 }
 

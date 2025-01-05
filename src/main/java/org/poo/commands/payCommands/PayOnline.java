@@ -5,8 +5,7 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.poo.bankInformation.*;
 
-import org.poo.cashback.NrOfTransactions;
-import org.poo.cashback.SpendingThreshold;
+import org.poo.cashback.CashbackHelper;
 import org.poo.commands.commandLogic.CommandInterface;
 import org.poo.commands.helperMethods.CountTransactionsHelper;
 import org.poo.commands.helperMethods.FindHelper;
@@ -43,7 +42,8 @@ public class PayOnline implements CommandInterface {
                     /* converts the amount to the currency of the account */
                     double newAmount = graph.convert(command.getCurrency(), account.getCurrency(),
                                        command.getAmount());
-                    double commission = user.calculateCommission(newAmount);
+                    double ronAmount = graph.convert(account.getCurrency(), "RON", newAmount);
+                    double commission = user.calculateCommission(newAmount, graph, account);
                     /* checks if the card is active and if it has funds for the payment */
                     if (card.getStatus().equals("active")) {
                         if (account.getBalance() >= newAmount + commission) {
@@ -80,7 +80,7 @@ public class PayOnline implements CommandInterface {
                                 account.setBalance(account.getBalance() - commission);
                             }
 
-                            if (user.getServicePlan().equals("silver") && command.getAmount() > 500) {
+                            if (user.getServicePlan().equals("silver") && ronAmount >= 500) {
                                 account.setBalance(account.getBalance() - commission);
                             }
 

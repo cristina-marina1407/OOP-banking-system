@@ -38,13 +38,14 @@ public class CashWithdrawal implements CommandInterface {
                 if (card != null) {
                     accountFound = 1;
                     double newAmount = graph.convert("RON", account.getCurrency(), command.getAmount());
-                    double commission = user.calculateCommission(newAmount);
+                    double ronAmount = graph.convert(account.getCurrency(), "RON", newAmount);
+                    double commission = user.calculateCommission(newAmount, graph, account);
                     if (account.getBalance() >= newAmount + commission) {
                         if (user.getServicePlan().equals("standard")) {
                             account.setBalance(account.getBalance() - commission);
                         }
 
-                        if (user.getServicePlan().equals("silver") && command.getAmount() > 500) {
+                        if (user.getServicePlan().equals("silver") && ronAmount >= 500) {
                             account.setBalance(account.getBalance() - commission);
                         }
                         Transaction transaction;
