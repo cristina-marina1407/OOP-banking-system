@@ -62,6 +62,12 @@ public class WithdrawSavings implements CommandInterface {
                                     account.setBalance(account.getBalance() - command.getAmount());
                                     classicAccount.setBalance(classicAccount.getBalance()
                                             + command.getAmount());
+
+                                    /*formatare*/
+                                    String formatted = String.format("%.2f", account.getBalance());
+                                    double formattedBalance = Double.parseDouble(formatted);
+                                    account.setBalance(formattedBalance);
+
                                     break;
                                 }
                             }

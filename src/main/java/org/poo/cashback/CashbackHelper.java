@@ -26,6 +26,12 @@ public class CashbackHelper {
                 if (cashback > 0) {
                     sender.addCashbackReceived(category, cashback);
                     sender.setBalance(sender.getBalance() + cashback);
+
+                    /*formatare*/
+                    String formatted = String.format("%.2f", sender.getBalance());
+                    double formattedBalance = Double.parseDouble(formatted);
+                    sender.setBalance(formattedBalance);
+
                 }
             }
         } else if (commerciantToPay.getCashbackStrategy().equals("spendingThreshold")) {
@@ -34,6 +40,12 @@ public class CashbackHelper {
             SpendingThreshold spendingThreshold = new SpendingThreshold();
             double cashback = spendingThreshold.calculateCashback(senderTransaction, sender, senderUser);
             sender.setBalance(sender.getBalance() + cashback);
+
+            /*formatare*/
+            String formatted = String.format("%.2f", sender.getBalance());
+            double formattedBalance = Double.parseDouble(formatted);
+            sender.setBalance(formattedBalance);
+
         }
     }
 }

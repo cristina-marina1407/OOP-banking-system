@@ -96,7 +96,19 @@ public class SendMoney implements CommandInterface {
                 }
 
                 sender.setBalance(sender.getBalance() - command.getAmount());
+
+                /*formatare*/
+                String formatted = String.format("%.2f", sender.getBalance());
+                double formattedBalance = Double.parseDouble(formatted);
+                sender.setBalance(formattedBalance);
+
                 receiver.setBalance(receiver.getBalance() + newAmount);
+
+                /*formatare*/
+                formatted = String.format("%.2f", receiver.getBalance());
+                formattedBalance = Double.parseDouble(formatted);
+                receiver.setBalance(formattedBalance);
+
                 /* creates the transactions for the both accounts and adds them
                  to the transactions list */
                 Transaction senderTransaction;

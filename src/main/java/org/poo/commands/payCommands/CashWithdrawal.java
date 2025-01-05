@@ -40,6 +40,7 @@ public class CashWithdrawal implements CommandInterface {
                     double newAmount = graph.convert("RON", account.getCurrency(), command.getAmount());
                     double ronAmount = graph.convert(account.getCurrency(), "RON", newAmount);
                     double commission = user.calculateCommission(newAmount, graph, account);
+
                     if (account.getBalance() >= newAmount + commission) {
                         if (user.getServicePlan().equals("standard")) {
                             account.setBalance(account.getBalance() - commission);
@@ -57,6 +58,12 @@ public class CashWithdrawal implements CommandInterface {
                                         .build();
                         account.getTransactions().add(transaction);
                         account.setBalance(account.getBalance() - newAmount);
+
+                        /*formatare*/
+                        String formatted = String.format("%.2f", account.getBalance());
+                        double formattedBalance = Double.parseDouble(formatted);
+                        account.setBalance(formattedBalance);
+
                         break;
                     }
                     Transaction transaction;

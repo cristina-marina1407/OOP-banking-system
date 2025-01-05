@@ -40,12 +40,18 @@ public class PayOnline implements CommandInterface {
                 Card card = FindHelper.findCard(account.getCards(), command.getCardNumber());
                 if (card != null) {
                     /* converts the amount to the currency of the account */
+                    cardFound = true;
                     double newAmount = graph.convert(command.getCurrency(), account.getCurrency(),
                                        command.getAmount());
                     double ronAmount = graph.convert(account.getCurrency(), "RON", newAmount);
                     double commission = user.calculateCommission(newAmount, graph, account);
                     /* checks if the card is active and if it has funds for the payment */
                     if (card.getStatus().equals("active")) {
+
+                        if (newAmount == 0) {
+                            break;
+                        }
+
                         if (account.getBalance() >= newAmount + commission) {
                             /* creates the transaction for the payment */
                             String commerciantName = command.getCommerciant();
@@ -73,6 +79,7 @@ public class PayOnline implements CommandInterface {
                             }
 
                             /* pays the amount */
+
                             card.pay(account, newAmount, command.getEmail(),
                                     command.getTimestamp());
 
@@ -91,6 +98,11 @@ public class PayOnline implements CommandInterface {
                                     user.setServicePlan("gold");
                                 }
                             }
+
+                            /*formatare*/
+                            String formatted = String.format("%.2f", account.getBalance());
+                            double formattedBalance = Double.parseDouble(formatted);
+                            account.setBalance(formattedBalance);
 
                         } else {
                             /* creates a transaction for the case when the account

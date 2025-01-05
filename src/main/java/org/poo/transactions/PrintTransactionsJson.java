@@ -112,7 +112,9 @@ public class PrintTransactionsJson {
     public ObjectNode printPayOnline() {
         ObjectMapper objectMapper = new ObjectMapper();
         ObjectNode transactionNode = objectMapper.createObjectNode();
-        transactionNode.put("amount", transaction.getAmount());
+        String formatted = String.format("%.2f", transaction.getAmount());
+        double formattedAmount = Double.parseDouble(formatted);
+        transactionNode.put("amount", formattedAmount);
         transactionNode.put("commerciant", transaction.getCommerciant());
         transactionNode.put("description", transaction.getDescription());
         transactionNode.put("timestamp", transaction.getTimestamp());

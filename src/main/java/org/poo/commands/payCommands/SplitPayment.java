@@ -71,6 +71,12 @@ public class SplitPayment implements CommandInterface {
                     } else {
                         /* substracts the amount of money from the accounts */
                         account.setBalance(account.getBalance() - newAmount);
+
+                        /*formatare*/
+                        String formatted = String.format("%.2f", account.getBalance());
+                        double formattedBalance = Double.parseDouble(formatted);
+                        account.setBalance(formattedBalance);
+
                         /* creates the transactions for the accounts and adds them
                          to the transactions list */
                         Transaction transaction;

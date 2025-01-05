@@ -20,6 +20,11 @@ public class Card {
     public void pay(final Account account, final double amount,
                     final String cardHolder, final int timestamp) {
         account.setBalance(account.getBalance() - amount);
+
+        /*formatare*/
+        String formatted = String.format("%.2f", account.getBalance());
+        double formattedBalance = Double.parseDouble(formatted);
+        account.setBalance(formattedBalance);
     }
 
     /**

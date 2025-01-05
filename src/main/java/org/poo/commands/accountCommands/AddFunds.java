@@ -25,6 +25,12 @@ public class AddFunds implements CommandInterface {
             Account account = FindHelper.findAccount(user.getAccounts(), command.getAccount());
             if (account != null) {
                 account.setBalance(account.getBalance() + command.getAmount());
+
+                /*formatare*/
+                String formatted = String.format("%.2f", account.getBalance());
+                double formattedBalance = Double.parseDouble(formatted);
+                account.setBalance(formattedBalance);
+
                 break;
             }
         }
