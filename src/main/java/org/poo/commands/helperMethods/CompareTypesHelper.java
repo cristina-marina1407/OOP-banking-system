@@ -1,6 +1,6 @@
 package org.poo.commands.helperMethods;
 
-public class CompareTypesHelper {
+public final class CompareTypesHelper {
     private CompareTypesHelper() {
 
     }
@@ -12,7 +12,6 @@ public class CompareTypesHelper {
      * @param type2 the second type
      * @return true if the second type is an upgrade plan, false otherwise
      */
-
     public static boolean compareTypes(final String type1, final String type2) {
         if (type1.equals("student") && type2.equals("silver")) {
             return true;

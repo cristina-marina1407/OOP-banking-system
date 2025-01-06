@@ -17,6 +17,10 @@ public class User {
     private String servicePlan;
     private List<Account> accounts;
 
+    private static final double STANDARD_COMMISSION_RATE = 0.002;
+    private static final double SILVER_COMMISSION_RATE = 0.001;
+    private static final double SILVER_THRESHOLD_RON = 500;
+
     public User(final UserInput userInput) {
         this.firstName = userInput.getFirstName();
         this.lastName = userInput.getLastName();
@@ -41,12 +45,19 @@ public class User {
         return Period.between(birthday, currentDate).getYears();
     }
 
-    public double calculateCommission(final double amount, Graph graph, Account account) {
+    /**
+     * @param amount the amount to pay/withdraw/transfer
+     * @param graph the graph used for currency conversion
+     * @param account the account used for the operation
+     * @return the commission for the operation
+     */
+    public double calculateCommission(final double amount, final Graph graph,
+                                      final Account account) {
         double ronAmount = graph.convert(account.getCurrency(), "RON", amount);
         if (this.servicePlan.equals("standard")) {
-            return amount * 0.002;
-        } else if (this.servicePlan.equals("silver") && ronAmount >= 500) {
-            return amount * 0.001;
+            return amount * STANDARD_COMMISSION_RATE;
+        } else if (this.servicePlan.equals("silver") && ronAmount >= SILVER_THRESHOLD_RON) {
+            return amount * SILVER_COMMISSION_RATE;
         }
         return 0;
     }
@@ -145,7 +156,7 @@ public class User {
     /**
      * @param servicePlan the servicePlan to set
      */
-    public void setServicePlan(String servicePlan) {
+    public void setServicePlan(final String servicePlan) {
         this.servicePlan = servicePlan;
     }
 }

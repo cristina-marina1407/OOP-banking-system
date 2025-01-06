@@ -10,7 +10,6 @@ import org.poo.bankInformation.User;
 import org.poo.commands.commandLogic.CommandInterface;
 import org.poo.commands.helperMethods.CompareTypesHelper;
 import org.poo.commands.helperMethods.FindHelper;
-import org.poo.commands.helperMethods.UpgradePlanHelper;
 import org.poo.transactions.Transaction;
 
 import java.util.List;
@@ -20,8 +19,12 @@ public class UpgradePlan implements CommandInterface {
     private List<User> users;
     private ArrayNode output;
     private Graph graph;
+    private static final int UPGRADE_FEE_SILVER = 100;
+    private static final int UPGRADE_FEE_SILVER_TO_GOLD = 250;
+    private static final int UPGRADE_FEE_GOLD = 350;
 
-    public UpgradePlan (final List<User> users, final Command command, final ArrayNode output, Graph graph) {
+    public UpgradePlan(final List<User> users, final Command command,
+                        final ArrayNode output, final Graph graph) {
         this.command = command;
         this.users = users;
         this.output = output;
@@ -31,7 +34,7 @@ public class UpgradePlan implements CommandInterface {
     /**
      * Upgrade plan command
      */
-    public void execute () {
+    public void execute() {
         ObjectMapper objectMapper = new ObjectMapper();
         ObjectNode resultNode = objectMapper.createObjectNode();
         resultNode.put("command", "upgradePlan");
@@ -43,20 +46,24 @@ public class UpgradePlan implements CommandInterface {
             Account account = FindHelper.findAccount(user.getAccounts(), command.getAccount());
             if (account != null) {
                 accountFound = 1;
+
+                /* check if the user already has this plan */
                 if (command.getNewPlanType().equals(user.getServicePlan())) {
                     Transaction transaction;
                     transaction =
                             new Transaction.TransactionBuilder(command.getTimestamp(),
-                                    "The user already has the " + command.getNewPlanType() + " plan",
-                                    "upgradePlanError")
-                                    .upgradePlanError()
-                                    .build();
+                            "The user already has the " + command.getNewPlanType() + " plan",
+                            "upgradePlanError")
+                            .upgradePlanError()
+                            .build();
                     account.getTransactions().add(transaction);
                     break;
                 }
                 boolean checkTypes = false;
-                checkTypes = CompareTypesHelper.compareTypes(user.getServicePlan(), command.getNewPlanType());
+                checkTypes = CompareTypesHelper.compareTypes(user.getServicePlan(),
+                        command.getNewPlanType());
 
+                /* checks if the new plan is a downgrade */
                 if (!checkTypes) {
                     Transaction transaction;
                     transaction =
@@ -69,23 +76,32 @@ public class UpgradePlan implements CommandInterface {
                     break;
                 }
 
+                /* upgrades plan from student/standard to silver */
                 if ((user.getServicePlan().equals("student")
-                    || user.getServicePlan().equals("standard")) && command.getNewPlanType().equals("silver")) {
-                    UpgradePlanHelper.upgradePlan(user, account, command.getNewPlanType(), 100,
-                            account.getCurrency(), command.getTimestamp(), graph);
+                    || user.getServicePlan().equals("standard"))
+                    && command.getNewPlanType().equals("silver")) {
+                    UpgradePlanHelper.upgradePlan(user, account, command.getNewPlanType(),
+                            UPGRADE_FEE_SILVER, account.getCurrency(),
+                            command.getTimestamp(), graph);
                     break;
                 }
 
+                /* upgrades plan from student/standard to gold */
                 if ((user.getServicePlan().equals("student")
-                        || user.getServicePlan().equals("standard")) && command.getNewPlanType().equals("gold")) {
-                    UpgradePlanHelper.upgradePlan(user, account, command.getNewPlanType(), 350,
-                            account.getCurrency(), command.getTimestamp(), graph);
+                        || user.getServicePlan().equals("standard"))
+                        && command.getNewPlanType().equals("gold")) {
+                    UpgradePlanHelper.upgradePlan(user, account, command.getNewPlanType(),
+                            UPGRADE_FEE_GOLD, account.getCurrency(),
+                            command.getTimestamp(), graph);
                     break;
                 }
 
-                if (user.getServicePlan().equals("silver") && command.getNewPlanType().equals("gold")) {
-                    UpgradePlanHelper.upgradePlan(user, account, command.getNewPlanType(), 250,
-                            account.getCurrency(), command.getTimestamp(), graph);
+                /* upgrades plan from silver to gold */
+                if (user.getServicePlan().equals("silver")
+                        && command.getNewPlanType().equals("gold")) {
+                    UpgradePlanHelper.upgradePlan(user, account, command.getNewPlanType(),
+                            UPGRADE_FEE_SILVER_TO_GOLD, account.getCurrency(),
+                            command.getTimestamp(), graph);
                     break;
                 }
 

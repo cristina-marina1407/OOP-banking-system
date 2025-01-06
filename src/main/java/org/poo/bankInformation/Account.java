@@ -96,24 +96,43 @@ public class Account {
         }
     }
 
-    public void addCashbackReceived(String category, double cashback) {
+
+    /**
+     * Updates the cashback amount received for a specific category
+     * @param category is Food, Clothes or Tech
+     * @param cashback is the cashback received
+     */
+    public void addCashbackReceived(final String category,
+                                    final double cashback) {
         if (cashbackReceivedByCategory.containsKey(category)) {
-            double currentCashback = cashbackReceivedByCategory.get(category);
-            cashbackReceivedByCategory.put(category, currentCashback + cashback);
+            double currentCashback =
+                    cashbackReceivedByCategory.get(category);
+            cashbackReceivedByCategory.put(category,
+                    currentCashback + cashback);
         } else {
             cashbackReceivedByCategory.put(category, cashback);
         }
     }
 
-    public void incrementTransactionCount(String category) {
+    /**
+     * Increments the transaction count for a specific category
+     * @param category is Food, Clothes or Tech
+     */
+    public void incrementTransactionCount(final String category) {
         if (transactionCountByCategory.containsKey(category)) {
-            transactionCountByCategory.put(category, transactionCountByCategory.get(category) + 1);
+            transactionCountByCategory.put(category,
+                    transactionCountByCategory.get(category) + 1);
         } else {
             transactionCountByCategory.put(category, 1);
         }
     }
 
-    public int getTransactionCountForCategory(String category) {
+    /**
+     * Returns the number of transactions for a specific category
+     * @param category is Food, Clothes or Tech
+     * @return the number of transactions for the category
+     */
+    public int getTransactionCountForCategory(final String category) {
         if (transactionCountByCategory.containsKey(category)) {
             return transactionCountByCategory.get(category);
         } else {
@@ -121,7 +140,11 @@ public class Account {
         }
     }
 
-    public void addToTotalSpentRON(double amountInRON) {
+    /**
+     * Adds the spent amount in RON to the total spent in RON
+     * @param amountInRON the amount to add to the total spent in RON
+     */
+    public void addToTotalSpentRON(final double amountInRON) {
         this.totalSpentRON += amountInRON;
     }
 
@@ -237,27 +260,49 @@ public class Account {
         this.minBalance = minBalance;
     }
 
+    /**
+     * @return the hashmap with the transactions count by category
+     */
     public Map<String, Integer> getTransactionCountByCategory() {
         return transactionCountByCategory;
     }
 
-    public void setTransactionCountByCategory(Map<String, Integer> transactionCountByCategory) {
+    /**
+     * @param transactionCountByCategory the hashmap with the transactions
+     count by category to set
+     */
+    public void setTransactionCountByCategory(final Map<String,
+            Integer> transactionCountByCategory) {
         this.transactionCountByCategory = transactionCountByCategory;
     }
 
+    /**
+     * @return the hashmap with the cashback received by category
+     */
     public Map<String, Double> getCashbackReceivedByCategory() {
         return cashbackReceivedByCategory;
     }
 
-    public void setCashbackReceivedByCategory(Map<String, Double> cashbackReceivedByCategory) {
+    /**
+     * @param cashbackReceivedByCategory the hashmap with the cashback
+     received by category to set
+     */
+    public void setCashbackReceivedByCategory(final Map<String,
+            Double> cashbackReceivedByCategory) {
         this.cashbackReceivedByCategory = cashbackReceivedByCategory;
     }
 
+    /**
+     * @return the total spent in RON
+     */
     public double getTotalSpentRON() {
         return totalSpentRON;
     }
 
-    public void setTotalSpentRON(double totalSpentRON) {
+    /**
+     * @param totalSpentRON the total spent in RON to set
+     */
+    public void setTotalSpentRON(final double totalSpentRON) {
         this.totalSpentRON = totalSpentRON;
     }
 }

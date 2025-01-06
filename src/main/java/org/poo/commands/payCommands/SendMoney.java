@@ -3,7 +3,11 @@ package org.poo.commands.payCommands;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import org.poo.bankInformation.*;
+import org.poo.bankInformation.User;
+import org.poo.bankInformation.Account;
+import org.poo.bankInformation.Command;
+import org.poo.bankInformation.Commerciant;
+import org.poo.bankInformation.Graph;
 import org.poo.cashback.CashbackHelper;
 import org.poo.commands.commandLogic.CommandInterface;
 import org.poo.transactions.Transaction;
@@ -18,9 +22,11 @@ public class SendMoney implements CommandInterface {
     private Map<String, String> aliases;
     private ArrayNode output;
     private List<Commerciant> commerciants;
+    private static final int COMISSION_SUM = 500;
 
     public SendMoney(final List<User> users, final Command command, final Graph graph,
-                     final Map<String, String> aliases, final ArrayNode output, final List<Commerciant> commerciants) {
+                     final Map<String, String> aliases, final ArrayNode output,
+                     final List<Commerciant> commerciants) {
         this.command = command;
         this.users = users;
         this.graph = graph;
@@ -91,7 +97,8 @@ public class SendMoney implements CommandInterface {
                     sender.setBalance(sender.getBalance() - commission);
                 }
 
-                if (senderUser.getServicePlan().equals("silver") && ronAmount >= 500) {
+                if (senderUser.getServicePlan().equals("silver")
+                    && ronAmount >= COMISSION_SUM) {
                     sender.setBalance(sender.getBalance() - commission);
                 }
 
@@ -126,6 +133,7 @@ public class SendMoney implements CommandInterface {
                 sender.getTransactions().add(senderTransaction);
                 receiver.getTransactions().add(receiverTransaction);
 
+                /* checks if the receiver is a commerciant and applies the cashback */
                 String category = null;
                 Commerciant commerciantToPay = null;
                 for (Commerciant commerciant : commerciants) {

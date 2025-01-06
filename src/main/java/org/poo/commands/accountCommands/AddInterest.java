@@ -35,7 +35,7 @@ public class AddInterest implements CommandInterface {
                     double interest = account.getBalance() * account.getInterestRate();
                     account.setBalance(account.getBalance() + interest);
 
-                    /*formatare*/
+                    /* formatted the balance after adding the interest */
                     String formatted = String.format("%.2f", account.getBalance());
                     double formattedBalance = Double.parseDouble(formatted);
                     account.setBalance(formattedBalance);

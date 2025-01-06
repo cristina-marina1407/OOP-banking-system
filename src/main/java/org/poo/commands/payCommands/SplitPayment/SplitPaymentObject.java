@@ -11,34 +11,54 @@ public class SplitPaymentObject {
     private final Command command;
     private List<String> acceptedUsers = new ArrayList<>();
 
-    public SplitPaymentObject(String splitPaymentType, long timestamp, Command command) {
+    public SplitPaymentObject(final String splitPaymentType, final long timestamp,
+                              final Command command) {
         this.splitPaymentType = splitPaymentType;
         this.timestamp = timestamp;
         this.command = command;
     }
 
+    /**
+     * @return the split payment type
+     */
     public String getSplitPaymentType() {
         return splitPaymentType;
     }
 
+    /**
+     * @return the timestamp
+     */
     public long getTimestamp() {
         return timestamp;
     }
 
+    /**
+     * @return the command
+     */
     public Command getCommand() {
         return command;
     }
 
+    /**
+     * @return the accepted users
+     */
     public List<String> getAcceptedUsers() {
         return acceptedUsers;
     }
 
-    public void addAcceptedUser(String username) {
-        acceptedUsers.add(username);
+    /**
+     * @param iban the iban to be added
+     */
+    public void addAcceptedUser(final String iban) {
+        acceptedUsers.add(iban);
     }
 
     /*trebuie sa modific*/
-    public boolean isFullyAccepted(List<String> users) {
+    /**
+     * checks if all the users accepted the split payment
+     * @param users the users to be checked
+     */
+    public boolean isFullyAccepted(final List<String> users) {
         return acceptedUsers.containsAll(users);
     }
 }

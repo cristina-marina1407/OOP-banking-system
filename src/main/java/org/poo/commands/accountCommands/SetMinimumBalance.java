@@ -26,7 +26,7 @@ public class SetMinimumBalance implements CommandInterface {
             if (account != null) {
                 account.setMinBalance(command.getMinBalance());
 
-                /*formatare*/
+                /* formatted the balance after setting the minimum balance */
                 String formatted = String.format("%.2f", account.getBalance());
                 double formattedBalance = Double.parseDouble(formatted);
                 account.setBalance(formattedBalance);

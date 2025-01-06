@@ -41,10 +41,13 @@ public class WithdrawSavings implements CommandInterface {
                 accountFound = 1;
                 if (account.getType().equals("savings")) {
                     int age = user.calculateAge();
+
+                    /* check if the user has the minimum age required */
                     if (age >= MINIMUM_AGE) {
                         int classicAccountFound = 0;
                         if (account.getBalance() >= command.getAmount()) {
                             for (Account classicAccount : user.getAccounts()) {
+                                /* check if the user has a classic account with the same currency */
                                 if (classicAccount.getType().equals("classic")
                                         && classicAccount.getCurrency().
                                         equals(command.getCurrency())) {
@@ -63,7 +66,7 @@ public class WithdrawSavings implements CommandInterface {
                                     classicAccount.setBalance(classicAccount.getBalance()
                                             + command.getAmount());
 
-                                    /*formatare*/
+                                    /* formatted the balance after withdrawing the savings */
                                     String formatted = String.format("%.2f", account.getBalance());
                                     double formattedBalance = Double.parseDouble(formatted);
                                     account.setBalance(formattedBalance);
@@ -91,6 +94,7 @@ public class WithdrawSavings implements CommandInterface {
                                 .build();
                         account.getTransactions().add(transaction);
                     }
+
                     Transaction transaction;
                     transaction = new Transaction.TransactionBuilder(command.getTimestamp(),
                             "You don't have the minimum age required.",
@@ -109,6 +113,7 @@ public class WithdrawSavings implements CommandInterface {
                 }
             }
         }
+        /* check if the account was not found */
         if (accountFound == 0) {
             outputNode.put("error",
                     "Account not found");

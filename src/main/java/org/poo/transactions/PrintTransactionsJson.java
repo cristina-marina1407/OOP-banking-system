@@ -162,7 +162,9 @@ public class PrintTransactionsJson {
         transactionNode.set("involvedAccounts", involvedAccountsArray);
 
         if (transaction.getInsufficientAccount() != null) {
-            transactionNode.put("error", "Account " + transaction.getInsufficientAccount() + " has insufficient funds for a split payment.");
+            transactionNode.put("error", "Account "
+                                + transaction.getInsufficientAccount()
+                                + " has insufficient funds for a split payment.");
         }
 
         return transactionNode;
@@ -233,6 +235,10 @@ public class PrintTransactionsJson {
         return transactionNode;
     }
 
+    /**
+     * Prints the JSON object for the upgrade plan transaction.
+     * @return the JSON object
+     */
     public ObjectNode printUpgradePlan() {
         ObjectMapper objectMapper = new ObjectMapper();
         ObjectNode transactionNode = objectMapper.createObjectNode();
@@ -243,6 +249,10 @@ public class PrintTransactionsJson {
         return transactionNode;
     }
 
+    /**
+     * Prints the JSON object for the upgrade plan error transaction.
+     * @return the JSON object
+     */
     public ObjectNode printUpgradePlanError() {
         ObjectMapper objectMapper = new ObjectMapper();
         ObjectNode transactionNode = objectMapper.createObjectNode();
@@ -251,6 +261,10 @@ public class PrintTransactionsJson {
         return transactionNode;
     }
 
+    /**
+     * Prints the JSON object for the cash withdrawal transaction.
+     * @return the JSON object
+     */
     public ObjectNode printCashWithdrawal() {
         ObjectMapper objectMapper = new ObjectMapper();
         ObjectNode transactionNode = objectMapper.createObjectNode();
@@ -260,6 +274,10 @@ public class PrintTransactionsJson {
         return transactionNode;
     }
 
+    /**
+     * Prints the JSON object for the cash withdrawal error transaction.
+     * @return the JSON object
+     */
     public ObjectNode printCashWithdrawalError() {
         ObjectMapper objectMapper = new ObjectMapper();
         ObjectNode transactionNode = objectMapper.createObjectNode();
@@ -268,6 +286,10 @@ public class PrintTransactionsJson {
         return transactionNode;
     }
 
+    /**
+     * Prints the JSON object for the add interest transaction.
+     * @return the JSON object
+     */
     public ObjectNode printAddInterest() {
         ObjectMapper objectMapper = new ObjectMapper();
         ObjectNode transactionNode = objectMapper.createObjectNode();

@@ -26,7 +26,7 @@ public class AddFunds implements CommandInterface {
             if (account != null) {
                 account.setBalance(account.getBalance() + command.getAmount());
 
-                /*formatare*/
+                /* formatted the balance after adding funds */
                 String formatted = String.format("%.2f", account.getBalance());
                 double formattedBalance = Double.parseDouble(formatted);
                 account.setBalance(formattedBalance);

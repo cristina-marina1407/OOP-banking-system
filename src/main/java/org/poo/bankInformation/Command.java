@@ -313,67 +313,115 @@ public class Command {
         this.accounts = accounts;
     }
 
+    /**
+     * @return the newPlanType
+     */
     public String getNewPlanType() {
         return newPlanType;
     }
 
-    public void setNewPlanType(String newPlanType) {
+    /**
+     * @param newPlanType the newPlanType to set
+     */
+    public void setNewPlanType(final String newPlanType) {
         this.newPlanType = newPlanType;
     }
 
+    /**
+     * @return the role
+     */
     public String getRole() {
         return role;
     }
 
-    public void setRole(String role) {
+    /**
+     * @param role the role to set
+     */
+    public void setRole(final String role) {
         this.role = role;
     }
 
+    /**
+     * @return the splitPaymentType
+     */
     public String getSplitPaymentType() {
         return splitPaymentType;
     }
 
-    public void setSplitPaymentType(String splitPaymentType) {
+    /**
+     * @param splitPaymentType the splitPaymentType to set
+     */
+    public void setSplitPaymentType(final String splitPaymentType) {
         this.splitPaymentType = splitPaymentType;
     }
 
+    /**
+     * @return the type
+     */
     public String getType() {
         return type;
     }
 
-    public void setType(String type) {
+    /**
+     * @param type the type to set
+     */
+    public void setType(final String type) {
         this.type = type;
     }
 
+    /**
+     * @return the location
+     */
     public String getLocation() {
         return location;
     }
 
-    public void setLocation(String location) {
+    /**
+     * @param location the location to set
+     */
+    public void setLocation(final String location) {
         this.location = location;
     }
 
+    /**
+     * @return the spendingLimit
+     */
     public double getSpendingLimit() {
         return spendingLimit;
     }
 
-    public void setSpendingLimit(double spendingLimit) {
+    /**
+     * @param spendingLimit the spendingLimit to set
+     */
+    public void setSpendingLimit(final double spendingLimit) {
         this.spendingLimit = spendingLimit;
     }
 
+    /**
+     * @return the depositLimit
+     */
     public double getDepositLimit() {
         return depositLimit;
     }
 
-    public void setDepositLimit(double depositLimit) {
+    /**
+     * @param depositLimit the depositLimit to set
+     */
+    public void setDepositLimit(final double depositLimit) {
         this.depositLimit = depositLimit;
     }
 
+    /**
+     * @return the amountForUsers
+     */
     public List<Double> getAmountForUsers() {
         return amountForUsers;
     }
 
-    public void setAmountForUsers(List<Double> amountForUsers) {
+    /**
+     * @param amountForUsers the amountForUsers to set
+     */
+    public void setAmountForUsers(final List<Double> amountForUsers) {
         this.amountForUsers = amountForUsers;
     }
 }

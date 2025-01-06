@@ -3,7 +3,12 @@ package org.poo.commands.payCommands;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import org.poo.bankInformation.*;
+import org.poo.bankInformation.Account;
+import org.poo.bankInformation.Card;
+import org.poo.bankInformation.Command;
+import org.poo.bankInformation.Commerciant;
+import org.poo.bankInformation.Graph;
+import org.poo.bankInformation.User;
 
 import org.poo.cashback.CashbackHelper;
 import org.poo.commands.commandLogic.CommandInterface;
@@ -19,6 +24,7 @@ public class PayOnline implements CommandInterface {
     private List<Commerciant> commerciants;
     private Graph graph;
     private ArrayNode output;
+    private static final int COMISSION_SUM = 500;
 
     public PayOnline(final List<User> users, final Command command, final Graph graph,
                      final ArrayNode output, final List<Commerciant> commerciants) {
@@ -57,6 +63,8 @@ public class PayOnline implements CommandInterface {
                             String commerciantName = command.getCommerciant();
                             String category = null;
                             Commerciant commerciantToPay = null;
+
+                            /* finds the commerciant and the commerciant type */
                             for (Commerciant commerciant : commerciants) {
                                 if (commerciant.getCommerciant().equals(commerciantName)) {
                                     category = commerciant.getType();
@@ -73,13 +81,13 @@ public class PayOnline implements CommandInterface {
                                     .build();
                             account.getTransactions().add(transaction);
 
+                            /* applies the cashback */
                             if (commerciantToPay != null) {
                                 CashbackHelper.applyCashback(commerciantToPay, account, category,
                                         transaction, user, graph, command);
                             }
 
                             /* pays the amount */
-
                             card.pay(account, newAmount, command.getEmail(),
                                     command.getTimestamp());
 
@@ -87,10 +95,12 @@ public class PayOnline implements CommandInterface {
                                 account.setBalance(account.getBalance() - commission);
                             }
 
-                            if (user.getServicePlan().equals("silver") && ronAmount >= 500) {
+                            if (user.getServicePlan().equals("silver")
+                                & ronAmount >= COMISSION_SUM) {
                                 account.setBalance(account.getBalance() - commission);
                             }
 
+                            /* check if the user can be upgraded to gold */
                             boolean upgradeCheck = CountTransactionsHelper.countTransactions(users);
 
                             if (upgradeCheck) {
@@ -99,7 +109,7 @@ public class PayOnline implements CommandInterface {
                                 }
                             }
 
-                            /*formatare*/
+                            /* formatted the balance after the payment */
                             String formatted = String.format("%.2f", account.getBalance());
                             double formattedBalance = Double.parseDouble(formatted);
                             account.setBalance(formattedBalance);

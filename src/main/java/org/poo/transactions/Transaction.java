@@ -94,7 +94,12 @@ public class Transaction {
             return this;
         }
 
-        public TransactionBuilder addInterest(final double givenInterest, final String givenCurrency) {
+        /**
+         * Sets the type to addInterest
+         * @return the updated TransactionBuilder
+         */
+        public TransactionBuilder addInterest(final double givenInterest,
+                                              final String givenCurrency) {
             this.type = "addInterest";
             this.interest = givenInterest;
             this.currency = givenCurrency;
@@ -141,8 +146,6 @@ public class Transaction {
             this.amount = givenAmount;
             this.transferType = givenTransferType;
             this.currency = givenCurrency;
-//            this.category = givenCategory;
-//            this.commerciant = givenCommerciant;
             return this;
         }
 
@@ -286,6 +289,12 @@ public class Transaction {
             return this;
         }
 
+        /**
+         * Sets the type to upgradePlan.
+         * @param givenNewPlanType the new plan type
+         * @param givenAccount the account to upgrade the plan for
+         * @return the updated TransactionBuilder
+         */
         public TransactionBuilder upgradePlan(final String givenNewPlanType,
                                               final String givenAccount) {
             this.type = "upgradePlan";
@@ -294,17 +303,30 @@ public class Transaction {
             return this;
         }
 
+        /**
+         * Sets the type to upgradePlanError.
+         * @return the updated TransactionBuilder
+         */
         public TransactionBuilder upgradePlanError() {
             this.type = "upgradePlanError";
             return this;
         }
 
+        /**
+         * Sets the type to cashWithdrawal.
+         * @param givenAmount the amount to withdraw
+         * @return the updated TransactionBuilder
+         */
         public TransactionBuilder cashWithdrawl(final double givenAmount) {
             this.type = "cashWithdrawal";
             this.amount = givenAmount;
             return this;
         }
 
+        /**
+         * Sets the type to cashWithdrawalError.
+         * @return the updated TransactionBuilder
+         */
         public TransactionBuilder cashWithdrawalError() {
             this.type = "cashWithdrawalError";
             return this;
@@ -529,43 +551,73 @@ public class Transaction {
         this.classicAccount = classicAccount;
     }
 
+    /**
+     * @return the new plan type
+     */
     public String getNewPlanType() {
         return newPlanType;
     }
 
-    public void setNewPlanType(String newPlanType) {
+    /**
+     * @param newPlanType the new plan type to set
+     */
+    public void setNewPlanType(final String newPlanType) {
         this.newPlanType = newPlanType;
     }
 
+    /**
+     * @return the interest
+     */
     public double getInterest() {
         return interest;
     }
 
-    public void setInterest(double interest) {
+    /**
+     * @param interest the interest to set
+     */
+    public void setInterest(final double interest) {
         this.interest = interest;
     }
 
+    /**
+     * @return the category
+     */
     public String getCategory() {
         return category;
     }
 
-    public void setCategory(String category) {
+    /**
+     * @param category the category to set
+     */
+    public void setCategory(final String category) {
         this.category = category;
     }
 
+    /**
+     * @return the split payment type
+     */
     public String getSplitPaymentType() {
         return splitPaymentType;
     }
 
-    public void setSplitPaymentType(String splitPaymentType) {
+    /**
+     * @param splitPaymentType the split payment type to set
+     */
+    public void setSplitPaymentType(final String splitPaymentType) {
         this.splitPaymentType = splitPaymentType;
     }
 
+    /**
+     * @return the amount for users
+     */
     public List<Double> getAmountForUsers() {
         return amountForUsers;
     }
 
-    public void setAmountForUsers(List<Double> amountForUsers) {
+    /**
+     * @param amountForUsers the amount for users to set
+     */
+    public void setAmountForUsers(final List<Double> amountForUsers) {
         this.amountForUsers = amountForUsers;
     }
 }
