@@ -9,6 +9,7 @@ import org.poo.bankInformation.Exchange;
 import org.poo.bankInformation.Commerciant;
 import org.poo.commands.commandLogic.CommandFactory;
 import org.poo.commands.commandLogic.CommandInterface;
+import org.poo.commands.payCommands.SplitPayment.SplitPaymentManager;
 import org.poo.fileio.CommandInput;
 import org.poo.fileio.ExchangeInput;
 import org.poo.fileio.CommerciantInput;
@@ -67,10 +68,12 @@ public class Application {
         /* Reset the ibans and the card numbers */
         Utils.resetRandom();
 
+        SplitPaymentManager splitPaymentManager = new SplitPaymentManager();
+
         for (Command command : commands) {
             CommandInterface commandInterface =
                     CommandFactory.createCommand(command, users, commerciants,
-                                                 output, graph, aliases);
+                                                 output, graph, aliases, splitPaymentManager);
             if (commandInterface != null) {
                 commandInterface.execute();
             }

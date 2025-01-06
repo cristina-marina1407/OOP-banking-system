@@ -21,6 +21,8 @@ public class Transaction {
     private String insufficientAccount;
     private double interest;
     private String category;
+    private String splitPaymentType;
+    private List<Double> amountForUsers;
 
     public Transaction(final TransactionBuilder builder) {
         this.timestamp = builder.timestamp;
@@ -41,6 +43,8 @@ public class Transaction {
         this.insufficientAccount = builder.insufficientAccount;
         this.interest = builder.interest;
         this.category = builder.category;
+        this.amountForUsers = builder.amountForUsers;
+        this.splitPaymentType = builder.splitPaymentType;
     }
 
     /**
@@ -65,6 +69,8 @@ public class Transaction {
         private String insufficientAccount;
         private double interest;
         private String category;
+        private List<Double> amountForUsers;
+        private String splitPaymentType;
 
         /**
          * Constructs a TransactionBuilder with the specified timestamp, description and type.
@@ -215,11 +221,15 @@ public class Transaction {
          */
         public TransactionBuilder splitPayment(final String givenCurrency,
                                                final double givenAmount,
-                                               final List<String> givenInvolvedAccounts) {
+                                               final List<String> givenInvolvedAccounts,
+                                               final String givenSplitPaymentType,
+                                               final List<Double> givenAmountForUsers) {
             this.type = "splitPayment";
             this.currency = givenCurrency;
             this.amount = givenAmount;
             this.involvedAccounts = givenInvolvedAccounts;
+            this.splitPaymentType = givenSplitPaymentType;
+            this.amountForUsers = givenAmountForUsers;
             return this;
         }
 
@@ -541,5 +551,21 @@ public class Transaction {
 
     public void setCategory(String category) {
         this.category = category;
+    }
+
+    public String getSplitPaymentType() {
+        return splitPaymentType;
+    }
+
+    public void setSplitPaymentType(String splitPaymentType) {
+        this.splitPaymentType = splitPaymentType;
+    }
+
+    public List<Double> getAmountForUsers() {
+        return amountForUsers;
+    }
+
+    public void setAmountForUsers(List<Double> amountForUsers) {
+        this.amountForUsers = amountForUsers;
     }
 }

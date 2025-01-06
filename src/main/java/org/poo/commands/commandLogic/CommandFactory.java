@@ -20,7 +20,10 @@ import org.poo.commands.cardCommands.DeleteCard;
 import org.poo.commands.payCommands.CashWithdrawal;
 import org.poo.commands.payCommands.PayOnline;
 import org.poo.commands.payCommands.SendMoney;
-import org.poo.commands.payCommands.SplitPayment;
+import org.poo.commands.payCommands.SplitPayment.AcceptSplitPayment;
+import org.poo.commands.payCommands.SplitPayment.RejectSplitPayment;
+import org.poo.commands.payCommands.SplitPayment.SplitPayment;
+import org.poo.commands.payCommands.SplitPayment.SplitPaymentManager;
 import org.poo.commands.planCommands.UpgradePlan;
 import org.poo.commands.printCommands.PrintTransactions;
 import org.poo.commands.printCommands.PrintUsers;
@@ -50,7 +53,8 @@ public final  class CommandFactory {
     public static CommandInterface createCommand(final Command command, final List<User> users,
                                                  final List<Commerciant> commerciants,
                                                  final ArrayNode output, final Graph graph,
-                                                 final Map<String, String> aliases) {
+                                                 final Map<String, String> aliases,
+                                                 final SplitPaymentManager splitPaymentManager) {
         switch (command.getCommand()) {
             case "printUsers":
                 return new PrintUsers(users, output, command);
@@ -79,7 +83,11 @@ public final  class CommandFactory {
             case "checkCardStatus":
                 return new CheckCardStatus(users, command, output);
             case "splitPayment":
-                return new SplitPayment(users, command, graph);
+                return new SplitPayment(users, command, graph, splitPaymentManager);
+            case "acceptSplitPayment":
+                return new AcceptSplitPayment(users, command, graph, splitPaymentManager);
+            case "rejectSplitPayment":
+                return new RejectSplitPayment(users, command, graph, splitPaymentManager);
             case "addInterest":
                 return new AddInterest(users, command, output);
             case "changeInterestRate":

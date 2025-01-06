@@ -140,16 +140,30 @@ public class PrintTransactionsJson {
     public ObjectNode printSplitPayment() {
         ObjectMapper objectMapper = new ObjectMapper();
         ObjectNode transactionNode = objectMapper.createObjectNode();
-        transactionNode.put("amount", transaction.getAmount());
-        transactionNode.put("currency", transaction.getCurrency());
-        transactionNode.put("description", transaction.getDescription());
         transactionNode.put("timestamp", transaction.getTimestamp());
+        transactionNode.put("description", transaction.getDescription());
+        transactionNode.put("splitPaymentType", transaction.getSplitPaymentType());
+        transactionNode.put("currency", transaction.getCurrency());
+
+        if (transaction.getSplitPaymentType().equals("custom")) {
+            ArrayNode amountForUsersArray = objectMapper.createArrayNode();
+            for (Double amount : transaction.getAmountForUsers()) {
+                amountForUsersArray.add(amount);
+            }
+            transactionNode.set("amountForUsers", amountForUsersArray);
+        } else if (transaction.getSplitPaymentType().equals("equal")) {
+            transactionNode.put("amount", transaction.getAmount());
+        }
 
         ArrayNode involvedAccountsArray = objectMapper.createArrayNode();
         for (String account : transaction.getInvolvedAccounts()) {
             involvedAccountsArray.add(account);
         }
         transactionNode.set("involvedAccounts", involvedAccountsArray);
+
+        if (transaction.getInsufficientAccount() != null) {
+            transactionNode.put("error", "Account " + transaction.getInsufficientAccount() + " has insufficient funds for a split payment.");
+        }
 
         return transactionNode;
     }
