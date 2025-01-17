@@ -112,9 +112,9 @@ public class PrintTransactionsJson {
     public ObjectNode printPayOnline() {
         ObjectMapper objectMapper = new ObjectMapper();
         ObjectNode transactionNode = objectMapper.createObjectNode();
-        String formatted = String.format("%.2f", transaction.getAmount());
-        double formattedAmount = Double.parseDouble(formatted);
-        transactionNode.put("amount", formattedAmount);
+//        String formatted = String.format("%.2f", transaction.getAmount());
+//        double formattedAmount = Double.parseDouble(formatted);
+        transactionNode.put("amount", transaction.getAmount());
         transactionNode.put("commerciant", transaction.getCommerciant());
         transactionNode.put("description", transaction.getDescription());
         transactionNode.put("timestamp", transaction.getTimestamp());
@@ -161,11 +161,11 @@ public class PrintTransactionsJson {
         }
         transactionNode.set("involvedAccounts", involvedAccountsArray);
 
-        if (transaction.getInsufficientAccount() != null) {
-            transactionNode.put("error", "Account "
-                                + transaction.getInsufficientAccount()
-                                + " has insufficient funds for a split payment.");
-        }
+//        if (transaction.getInsufficientAccount() != null) {
+//            transactionNode.put("error", "Account "
+//                                + transaction.getInsufficientAccount()
+//                                + " has insufficient funds for a split payment.");
+//        }
 
         return transactionNode;
     }
@@ -177,23 +177,33 @@ public class PrintTransactionsJson {
     public ObjectNode printSplitPaymentError() {
         ObjectMapper objectMapper = new ObjectMapper();
         ObjectNode transactionNode = objectMapper.createObjectNode();
-        transactionNode.put("amount", transaction.getAmount());
+
         transactionNode.put("currency", transaction.getCurrency());
         transactionNode.put("description", transaction.getDescription());
         transactionNode.put("timestamp", transaction.getTimestamp());
+        transactionNode.put("splitPaymentType", transaction.getSplitPaymentType());
+
+        if (transaction.getSplitPaymentType().equals("custom")) {
+            ArrayNode amountForUsersArray = objectMapper.createArrayNode();
+            for (Double amount : transaction.getAmountForUsers()) {
+                amountForUsersArray.add(amount);
+            }
+            transactionNode.set("amountForUsers", amountForUsersArray);
+        } else if (transaction.getSplitPaymentType().equals("equal")) {
+            transactionNode.put("amount", transaction.getAmountForUsers().get(0));
+        }
 
         ArrayNode involvedAccountsArray = objectMapper.createArrayNode();
         for (String account : transaction.getInvolvedAccounts()) {
             involvedAccountsArray.add(account);
         }
-
-        transactionNode.put("error", "Account " + transaction.getInsufficientAccount()
-                            + " has insufficient funds for a split payment.");
-
         transactionNode.set("involvedAccounts", involvedAccountsArray);
+
+        transactionNode.put("error", transaction.getError());
 
         return transactionNode;
     }
+
 
     /**
      * Prints the JSON object for the change interest rate transaction.
@@ -293,6 +303,8 @@ public class PrintTransactionsJson {
     public ObjectNode printAddInterest() {
         ObjectMapper objectMapper = new ObjectMapper();
         ObjectNode transactionNode = objectMapper.createObjectNode();
+//        String formatted = String.format("%.2f", transaction.getInterest());
+//        double formattedAmount = Double.parseDouble(formatted);
         transactionNode.put("amount", transaction.getInterest());
         transactionNode.put("currency", transaction.getCurrency());
         transactionNode.put("description", transaction.getDescription());

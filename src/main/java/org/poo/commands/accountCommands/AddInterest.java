@@ -27,18 +27,18 @@ public class AddInterest implements CommandInterface {
      * Add interest to the savings account
      */
     public void execute() {
+        System.out.println("Add interest");
         for (User user : users) {
             Account account = FindHelper.findAccount(user.getAccounts(), command.getAccount());
             if (account != null) {
                 /* if the account is a savings account, add the interest */
                 if (account.getType().equals("savings")) {
                     double interest = account.getBalance() * account.getInterestRate();
+                    System.out.println("balance before: " + account.getBalance());
+
                     account.setBalance(account.getBalance() + interest);
 
-                    /* formatted the balance after adding the interest */
-                    String formatted = String.format("%.2f", account.getBalance());
-                    double formattedBalance = Double.parseDouble(formatted);
-                    account.setBalance(formattedBalance);
+                    System.out.println("Interest: " + interest +   " interestRate " + account.getInterestRate() + " Balance: " + account.getBalance() + " Account: " + account.getIban() + " timestamp: " + command.getTimestamp());
 
                     Transaction transaction;
                     transaction =

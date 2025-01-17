@@ -10,6 +10,7 @@ import org.poo.bankInformation.Commerciant;
 import org.poo.bankInformation.Graph;
 import org.poo.cashback.CashbackHelper;
 import org.poo.commands.commandLogic.CommandInterface;
+import org.poo.commands.helperMethods.CountTransactionsHelper;
 import org.poo.transactions.Transaction;
 
 import java.util.List;
@@ -44,6 +45,8 @@ public class SendMoney implements CommandInterface {
         resultNode.put("command", "sendMoney");
         ObjectNode outputNode = objectMapper.createObjectNode();
 
+        //System.out.println("here " + command.getTimestamp());
+
         Account sender = null;
         Account receiver = null;
         User senderUser = null;
@@ -53,44 +56,64 @@ public class SendMoney implements CommandInterface {
             /* checks if the accounts are referred to using an alias */
             for (Account account : user.getAccounts()) {
                 if (aliases.containsKey(senderAlias) && !aliases.containsKey(receiverAlias)) {
-                    if (account.getIban().equals(senderAlias)) {
+                    if (account.getIban().equals(aliases.get(senderAlias))) {
                         senderUser = user;
                         sender = account;
                     } else if (account.getIban().equals(command.getReceiver())) {
                         receiver = account;
                     }
                 } else if (aliases.containsKey(receiverAlias)
-                           && !aliases.containsKey(senderAlias)) {
-                    if (account.getIban().equals(receiverAlias)) {
+                        && !aliases.containsKey(senderAlias)) {
+                    if (account.getIban().equals(aliases.get(receiverAlias))) {
+                        receiver = account;
+                    } else if (account.getIban().equals(command.getReceiver())) {
                         senderUser = user;
                         sender = account;
-                    } else if (account.getIban().equals(command.getReceiver())) {
-                        receiver = account;
                     }
                 } else if (aliases.containsKey(senderAlias) && aliases.containsKey(receiverAlias)) {
-                    if (account.getIban().equals(senderAlias)) {
+                    if (account.getIban().equals(aliases.get(senderAlias))) {
                         senderUser = user;
                         sender = account;
-                    } else if (account.getIban().equals(receiverAlias)) {
+                    } else if (account.getIban().equals(aliases.get(receiverAlias))) {
                         receiver = account;
                     }
                 } else {
                     if (account.getIban().equals(command.getAccount())) {
                         senderUser = user;
                         sender = account;
-                    } else if (account.getIban().equals(command.getReceiver())) {
+                    }
+                    if (account.getIban().equals(command.getReceiver())) {
                         receiver = account;
                     }
                 }
             }
         }
 
-        if (sender != null && receiver != null) {
+        if (sender == null) {
+            outputNode.put("description", "User not found");
+            outputNode.put("timestamp", command.getTimestamp());
+            resultNode.set("output", outputNode);
+            resultNode.put("timestamp", command.getTimestamp());
+            output.add(resultNode);
+            return;
+        }
+
+        boolean commerciantFound = false;
+
+        if (receiver != null) {
             /* converts the amount to the currency of the receiver account */
             double newAmount = graph.convert(sender.getCurrency(), receiver.getCurrency(),
-                               command.getAmount());
+                    command.getAmount());
+
+            if (sender.getType().equals("business")) {
+                if (sender.isEmployee(command.getEmail())
+                        && command.getAmount() > sender.getSpendingLimit()) {
+                    return;
+                }
+            }
+
             double ronAmount = graph.convert(sender.getCurrency(), "RON", newAmount);
-            double commission = senderUser.calculateCommission(newAmount, graph, sender);
+            double commission = senderUser.calculateCommission(command.getAmount(), graph, sender);
             /* checks if the sender has enough money to make the transaction */
             if (sender.getBalance() >= command.getAmount() + commission) {
                 if (senderUser.getServicePlan().equals("standard")) {
@@ -98,23 +121,13 @@ public class SendMoney implements CommandInterface {
                 }
 
                 if (senderUser.getServicePlan().equals("silver")
-                    && ronAmount >= COMISSION_SUM) {
+                        && ronAmount >= COMISSION_SUM) {
                     sender.setBalance(sender.getBalance() - commission);
                 }
 
                 sender.setBalance(sender.getBalance() - command.getAmount());
 
-                /*formatare*/
-                String formatted = String.format("%.2f", sender.getBalance());
-                double formattedBalance = Double.parseDouble(formatted);
-                sender.setBalance(formattedBalance);
-
                 receiver.setBalance(receiver.getBalance() + newAmount);
-
-                /*formatare*/
-                formatted = String.format("%.2f", receiver.getBalance());
-                formattedBalance = Double.parseDouble(formatted);
-                receiver.setBalance(formattedBalance);
 
                 /* creates the transactions for the both accounts and adds them
                  to the transactions list */
@@ -123,31 +136,16 @@ public class SendMoney implements CommandInterface {
                 senderTransaction = new Transaction.TransactionBuilder(command.getTimestamp(),
                         command.getDescription(), "sendMoney")
                         .sendMoney(command.getAccount(), command.getReceiver(), command.getAmount(),
-                                "sent", sender.getCurrency())
+                                "sent", sender.getCurrency(), senderUser.getEmail())
                         .build();
                 receiverTransaction = new Transaction.TransactionBuilder(command.getTimestamp(),
                         command.getDescription(), "sendMoney")
                         .sendMoney(command.getAccount(), command.getReceiver(), newAmount,
-                                "received", receiver.getCurrency())
+                                "received", receiver.getCurrency(), senderUser.getEmail())
                         .build();
                 sender.getTransactions().add(senderTransaction);
                 receiver.getTransactions().add(receiverTransaction);
 
-                /* checks if the receiver is a commerciant and applies the cashback */
-                String category = null;
-                Commerciant commerciantToPay = null;
-                for (Commerciant commerciant : commerciants) {
-                    if (commerciant.getAccount().equals(receiver.getIban())) {
-                        category = commerciant.getType();
-                        commerciantToPay = commerciant;
-                        break;
-                    }
-                }
-
-                if (commerciantToPay != null) {
-                    CashbackHelper.applyCashback(commerciantToPay, sender, category,
-                            senderTransaction, senderUser, graph, command);
-                }
             } else {
                 /* creates a transaction for the sender account in case of insufficient funds */
                 Transaction transaction;
@@ -158,11 +156,89 @@ public class SendMoney implements CommandInterface {
                 sender.getTransactions().add(transaction);
             }
         } else {
-            outputNode.put("description", "User not found");
-            outputNode.put("timestamp", command.getTimestamp());
-            resultNode.set("output", outputNode);
-            resultNode.put("timestamp", command.getTimestamp());
-            output.add(resultNode);
+            for (Commerciant commerciant : commerciants) {
+                if (commerciant.getAccount().equals(command.getReceiver())) {
+                    commerciantFound = true;
+                    if (sender.getType().equals("business")) {
+                        if (sender.isEmployee(command.getEmail())
+                                && command.getAmount() > sender.getSpendingLimit()) {
+                            break;
+                        }
+                    }
+
+                    double ronAmount = graph.convert(sender.getCurrency(), "RON", command.getAmount());
+                    double commission = senderUser.calculateCommission(command.getAmount(), graph, sender);
+                    /* checks if the sender has enough money to make the transaction */
+                    if (sender.getBalance() >= command.getAmount() + commission) {
+                        if (senderUser.getServicePlan().equals("standard")) {
+                            sender.setBalance(sender.getBalance() - commission);
+                        }
+
+                        if (senderUser.getServicePlan().equals("silver")
+                                && ronAmount >= COMISSION_SUM) {
+                            sender.setBalance(sender.getBalance() - commission);
+                        }
+
+                        sender.setBalance(sender.getBalance() - command.getAmount());
+
+                        sender.updateNrOfTransactions(commerciant.getCommerciant());
+
+                        sender.addToTotalSpentRON(ronAmount);
+
+                /* creates the transactions for the both accounts and adds them
+                 to the transactions list */
+
+                        Transaction senderTransaction;
+                        senderTransaction = new Transaction.TransactionBuilder(command.getTimestamp(),
+                                command.getDescription(), "sendMoney")
+                                .sendMoney(command.getAccount(), command.getReceiver(), command.getAmount(),
+                                        "sent", sender.getCurrency(), senderUser.getEmail())
+                                .build();
+                        sender.getTransactions().add(senderTransaction);
+
+                        if (sender.getType().equals("business") && !sender.isEmployee(commerciant.getCommerciant())) {
+                            sender.addSpending(commerciant.getCommerciant(), command.getEmail(), command.getAmount());
+                            sender.updateTotalSpentByAssociate(command.getEmail(), command.getAmount());
+                        }
+
+                        System.out.println("business " + "timestamp " + command.getTimestamp() + " sendMoney account: " + sender.getIban() + " email " +
+                                command.getEmail() + " amount " + command.getAmount() + " commerciant " + commerciant.getCommerciant() + " strategy " +
+                                commerciant.getCashbackStrategy() + " comission " + commission + " plan " + senderUser.getServicePlan());
+
+                        CashbackHelper.applyCashback(commerciant, sender, commerciant.getType(),
+                                senderTransaction, senderUser, graph, command, users);
+
+                        boolean upgradeCheck = CountTransactionsHelper.countTransactions(senderUser, graph);
+
+                        if (upgradeCheck) {
+                            if (senderUser.getServicePlan().equals("silver")) {
+                                senderUser.setServicePlan("gold");
+                                Transaction transactionUpgrade = new Transaction.TransactionBuilder(command.getTimestamp(),
+                                        "Upgrade plan", "upgradePlan")
+                                        .upgradePlan("gold", sender.getIban())
+                                        .build();
+                                sender.getTransactions().add(transactionUpgrade);
+                                System.out.println("user" + senderUser.getEmail() + " updated from silver to gold timestamp " + command.getTimestamp());
+                            }
+                        }
+                    } else {
+                        /* creates a transaction for the sender account in case of insufficient funds */
+                        Transaction transaction;
+                        transaction = new Transaction.TransactionBuilder(command.getTimestamp(),
+                                "Insufficient funds", "sendMoney")
+                                .sendMoneyError()
+                                .build();
+                        sender.getTransactions().add(transaction);
+                    }
+                }
+            }
+            if (!commerciantFound) {
+                outputNode.put("description", "User not found");
+                outputNode.put("timestamp", command.getTimestamp());
+                resultNode.set("output", outputNode);
+                resultNode.put("timestamp", command.getTimestamp());
+                output.add(resultNode);
+            }
         }
     }
 }

@@ -1,6 +1,7 @@
 package org.poo.cashback;
 
 import org.poo.bankInformation.Account;
+import org.poo.bankInformation.Commerciant;
 import org.poo.bankInformation.User;
 import org.poo.transactions.Transaction;
 
@@ -15,5 +16,5 @@ public interface StrategyInterface {
      * @param user the user that made the transaction
      * @return the cashback for the transaction
      */
-    double calculateCashback(Transaction transaction, Account account, User user);
+    double calculateCashback(Commerciant commerciant, Transaction transaction, Account account, User user);
 }

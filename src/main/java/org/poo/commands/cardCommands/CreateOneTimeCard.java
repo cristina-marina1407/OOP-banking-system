@@ -28,7 +28,7 @@ public class CreateOneTimeCard implements CommandInterface {
             Account account = FindHelper.findAccount(user.getAccounts(), command.getAccount());
             if (account != null) {
                 /* creates a new one time card for the user specified in the command */
-                OneTimeCard newCard = new OneTimeCard();
+                OneTimeCard newCard = new OneTimeCard(command.getEmail());
                 account.getCards().add(newCard);
                 /* creates a transaction for the new card */
                 Transaction transaction;

@@ -5,14 +5,7 @@ import org.poo.bankInformation.Command;
 import org.poo.bankInformation.Commerciant;
 import org.poo.bankInformation.Graph;
 import org.poo.bankInformation.User;
-import org.poo.commands.accountCommands.AddAccount;
-import org.poo.commands.accountCommands.AddFunds;
-import org.poo.commands.accountCommands.DeleteAccount;
-import org.poo.commands.accountCommands.SetMinimumBalance;
-import org.poo.commands.accountCommands.WithdrawSavings;
-import org.poo.commands.accountCommands.SetAlias;
-import org.poo.commands.accountCommands.AddInterest;
-import org.poo.commands.accountCommands.ChangeInterestRate;
+import org.poo.commands.accountCommands.*;
 import org.poo.commands.cardCommands.CheckCardStatus;
 import org.poo.commands.cardCommands.CreateCard;
 import org.poo.commands.cardCommands.CreateOneTimeCard;
@@ -27,6 +20,7 @@ import org.poo.commands.payCommands.SplitPayment.SplitPaymentManager;
 import org.poo.commands.planCommands.UpgradePlan;
 import org.poo.commands.printCommands.PrintTransactions;
 import org.poo.commands.printCommands.PrintUsers;
+import org.poo.commands.reportCommands.BusinessReport;
 import org.poo.commands.reportCommands.Report;
 import org.poo.commands.reportCommands.SpendingReport;
 
@@ -59,9 +53,15 @@ public final  class CommandFactory {
             case "printUsers":
                 return new PrintUsers(users, output, command);
             case "addAccount":
-                return new AddAccount(users, command);
+                return new AddAccount(users, command, graph);
             case "addFunds":
                 return new AddFunds(users, command);
+            case "addNewBusinessAssociate":
+                return new AddNewBusinessAssociate(users, command);
+            case "changeDepositLimit":
+                return new ChangeDepositLimit(users, command, output);
+            case "changeSpendingLimit":
+                return new ChangeSpendingLimit(users, command, output);
             case "createCard":
                 return new CreateCard(users, command);
             case "createOneTimeCard":
@@ -85,9 +85,9 @@ public final  class CommandFactory {
             case "splitPayment":
                 return new SplitPayment(users, command, graph, splitPaymentManager);
             case "acceptSplitPayment":
-                return new AcceptSplitPayment(users, command, graph, splitPaymentManager);
+                return new AcceptSplitPayment(users, command, graph, splitPaymentManager, output);
             case "rejectSplitPayment":
-                return new RejectSplitPayment(users, command, graph, splitPaymentManager);
+                return new RejectSplitPayment(users, command, graph, splitPaymentManager, output);
             case "addInterest":
                 return new AddInterest(users, command, output);
             case "changeInterestRate":
@@ -96,8 +96,10 @@ public final  class CommandFactory {
                 return new Report(users, command, output);
             case "spendingsReport":
                 return new SpendingReport(users, command, output);
+            case "businessReport":
+                return new BusinessReport(users, command, output);
             case "withdrawSavings":
-                return new WithdrawSavings(users, command, output);
+                return new WithdrawSavings(users, command, output, graph);
             case "upgradePlan":
                 return new UpgradePlan(users, command, output, graph);
             case "cashWithdrawal":

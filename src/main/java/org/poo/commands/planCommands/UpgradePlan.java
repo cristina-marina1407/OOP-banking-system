@@ -40,24 +40,24 @@ public class UpgradePlan implements CommandInterface {
         resultNode.put("command", "upgradePlan");
         ObjectNode outputNode = objectMapper.createObjectNode();
 
-        int accountFound = 0;
+        boolean accountFound = false;
 
         for (User user : users) {
             Account account = FindHelper.findAccount(user.getAccounts(), command.getAccount());
             if (account != null) {
-                accountFound = 1;
+                accountFound = true;
 
                 /* check if the user already has this plan */
                 if (command.getNewPlanType().equals(user.getServicePlan())) {
                     Transaction transaction;
                     transaction =
                             new Transaction.TransactionBuilder(command.getTimestamp(),
-                            "The user already has the " + command.getNewPlanType() + " plan",
+                            "The user already has the " + command.getNewPlanType() + " plan.",
                             "upgradePlanError")
                             .upgradePlanError()
                             .build();
                     account.getTransactions().add(transaction);
-                    break;
+                    return;
                 }
                 boolean checkTypes = false;
                 checkTypes = CompareTypesHelper.compareTypes(user.getServicePlan(),
@@ -73,7 +73,7 @@ public class UpgradePlan implements CommandInterface {
                                     .upgradePlanError()
                                     .build();
                     account.getTransactions().add(transaction);
-                    break;
+                    return;
                 }
 
                 /* upgrades plan from student/standard to silver */
@@ -107,14 +107,9 @@ public class UpgradePlan implements CommandInterface {
 
             }
         }
-
-        if (accountFound == 0) {
-            outputNode.put("error",
+        if (!accountFound) {
+            outputNode.put("description",
                     "Account not found");
-            outputNode.put("timestamp", command.getTimestamp());
-            resultNode.set("output", outputNode);
-            resultNode.put("timestamp", command.getTimestamp());
-            output.add(resultNode);
             outputNode.put("timestamp", command.getTimestamp());
             resultNode.set("output", outputNode);
             resultNode.put("timestamp", command.getTimestamp());

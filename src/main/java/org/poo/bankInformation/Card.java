@@ -4,10 +4,12 @@ import org.poo.utils.Utils;
 public class Card {
     private String cardNumber;
     private String status;
+    private String owner;
 
-    public Card() {
+    public Card(final String owner) {
         this.cardNumber = Utils.generateCardNumber();
         this.status = "active";
+        this.owner = owner;
     }
 
     /**
@@ -22,9 +24,9 @@ public class Card {
         account.setBalance(account.getBalance() - amount);
 
         /* formatted the balance after paying with the card */
-        String formatted = String.format("%.2f", account.getBalance());
-        double formattedBalance = Double.parseDouble(formatted);
-        account.setBalance(formattedBalance);
+//        String formatted = String.format("%.2f", account.getBalance());
+//        double formattedBalance = Double.parseDouble(formatted);
+//        account.setBalance(account.getBalance());
     }
 
     /**
@@ -53,5 +55,13 @@ public class Card {
      */
     public void setStatus(final String status) {
         this.status = status;
+    }
+
+    public String getOwner() {
+        return owner;
+    }
+
+    public void setOwner(String owner) {
+        this.owner = owner;
     }
 }

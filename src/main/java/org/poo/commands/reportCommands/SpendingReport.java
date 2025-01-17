@@ -61,9 +61,9 @@ public class SpendingReport implements CommandInterface {
 
                 ObjectNode outputNode = mapper.createObjectNode();
                 outputNode.put("IBAN", account.getIban());
-                String formatted = String.format("%.2f", account.getBalance());
-                double formattedBalance = Double.parseDouble(formatted);
-                outputNode.put("balance", formattedBalance);
+//                String formatted = String.format("%.2f", account.getBalance());
+//                double formattedBalance = Double.parseDouble(formatted);
+                outputNode.put("balance", account.getBalance());
                 outputNode.put("currency", account.getCurrency());
 
                 ArrayNode transactionsArray = mapper.createArrayNode();

@@ -1,21 +1,22 @@
 package org.poo.cashback;
 
 import org.poo.bankInformation.Account;
+import org.poo.bankInformation.Commerciant;
 import org.poo.bankInformation.User;
 import org.poo.transactions.Transaction;
 
 public class SpendingThreshold implements StrategyInterface {
-    private static final double GOLD_CASHBACK_ABOVE_500 = 0.7;
-    private static final double SILVER_CASHBACK_ABOVE_500 = 0.5;
-    private static final double DEFAULT_CASHBACK_ABOVE_500 = 0.25;
+    private static final double GOLD_CASHBACK_ABOVE_500 = 0.007;
+    private static final double SILVER_CASHBACK_ABOVE_500 = 0.005;
+    private static final double DEFAULT_CASHBACK_ABOVE_500 = 0.0025;
 
-    private static final double GOLD_CASHBACK_ABOVE_300 = 0.55;
-    private static final double SILVER_CASHBACK_ABOVE_300 = 0.4;
-    private static final double DEFAULT_CASHBACK_ABOVE_300 = 0.2;
+    private static final double GOLD_CASHBACK_ABOVE_300 = 0.0055;
+    private static final double SILVER_CASHBACK_ABOVE_300 = 0.004;
+    private static final double DEFAULT_CASHBACK_ABOVE_300 = 0.002;
 
-    private static final double GOLD_CASHBACK_ABOVE_100 = 0.5;
-    private static final double SILVER_CASHBACK_ABOVE_100 = 0.3;
-    private static final double DEFAULT_CASHBACK_ABOVE_100 = 0.1;
+    private static final double GOLD_CASHBACK_ABOVE_100 = 0.005;
+    private static final double SILVER_CASHBACK_ABOVE_100 = 0.003;
+    private static final double DEFAULT_CASHBACK_ABOVE_100 = 0.001;
 
     private static final double THRESHOLD_500 = 500;
     private static final double THRESHOLD_300 = 300;
@@ -31,13 +32,14 @@ public class SpendingThreshold implements StrategyInterface {
      * @param user the user for which the cashback is calculated
      * @return the cashback amount
      */
-    public double calculateCashback(final Transaction transaction, final Account account,
+    public double calculateCashback(Commerciant commerciant, final Transaction transaction, final Account account,
                                     final User user) {
         double totalSpentRON = account.getTotalSpentRON();
         double cashbackPercentage = 0.0;
 
         /* calculates the cashback percentage based on the service plan and
          the total amount spent by the user */
+        System.out.println("user plan " + user.getServicePlan());
         if (totalSpentRON >= THRESHOLD_500) {
             if (user.getServicePlan().equals("gold")) {
                 cashbackPercentage = GOLD_CASHBACK_ABOVE_500;
@@ -64,6 +66,6 @@ public class SpendingThreshold implements StrategyInterface {
             }
         }
 
-        return transaction.getAmount() * cashbackPercentage / PERCENTAGE;
+        return cashbackPercentage;
     }
 }

@@ -23,6 +23,8 @@ public class Transaction {
     private String category;
     private String splitPaymentType;
     private List<Double> amountForUsers;
+    private String error;
+    private String email;
 
     public Transaction(final TransactionBuilder builder) {
         this.timestamp = builder.timestamp;
@@ -45,6 +47,8 @@ public class Transaction {
         this.category = builder.category;
         this.amountForUsers = builder.amountForUsers;
         this.splitPaymentType = builder.splitPaymentType;
+        this.error = builder.error;
+        this.email = builder.email;
     }
 
     /**
@@ -71,6 +75,8 @@ public class Transaction {
         private String category;
         private List<Double> amountForUsers;
         private String splitPaymentType;
+        private String error;
+        private String email;
 
         /**
          * Constructs a TransactionBuilder with the specified timestamp, description and type.
@@ -137,15 +143,16 @@ public class Transaction {
                                             final String givenReceiverIban,
                                             final double givenAmount,
                                             final String givenTransferType,
-                                            final String givenCurrency
-                                            /*final String givenCategory,*/
-                                            /*final String givenCommerciant*/) {
+                                            final String givenCurrency,
+                                            final String givenEmail) {
             this.type = "sendMoney";
             this.senderIban = givenSenderIban;
             this.receiverIban = givenReceiverIban;
             this.amount = givenAmount;
             this.transferType = givenTransferType;
             this.currency = givenCurrency;
+            this.commerciant = givenReceiverIban;
+            this.email = givenEmail;
             return this;
         }
 
@@ -198,11 +205,13 @@ public class Transaction {
          */
         public TransactionBuilder payOnline(final double givenAmount,
                                             final String givenCommerciant,
-                                            final String givenCategory) {
+                                            final String givenCategory,
+                                            final String givenEmail) {
             this.type = "payOnline";
             this.amount = givenAmount;
             this.commerciant = givenCommerciant;
             this.category = givenCategory;
+            this.email = givenEmail;
             return this;
         }
 
@@ -247,12 +256,18 @@ public class Transaction {
         public TransactionBuilder splitPaymentError(final String givenCurrency,
                                                     final double givenAmount,
                                                     final List<String> givenInvolvedAccounts,
-                                                    final String givenInsufficientAccount) {
+                                                    final String givenInsufficientAccount,
+                                                    final String givenSplitPaymentType,
+                                                    final List<Double> givenAmountForUsers,
+                                                    final String givenError) {
             this.type = "splitPaymentError";
             this.currency = givenCurrency;
             this.amount = givenAmount;
             this.involvedAccounts = givenInvolvedAccounts;
             this.insufficientAccount = givenInsufficientAccount;
+            this.splitPaymentType = givenSplitPaymentType;
+            this.amountForUsers = givenAmountForUsers;
+            this.error = givenError;
             return this;
         }
 
@@ -619,5 +634,21 @@ public class Transaction {
      */
     public void setAmountForUsers(final List<Double> amountForUsers) {
         this.amountForUsers = amountForUsers;
+    }
+
+    public String getError() {
+        return error;
+    }
+
+    public void setError(String error) {
+        this.error = error;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
     }
 }

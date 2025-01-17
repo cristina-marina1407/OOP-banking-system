@@ -34,20 +34,21 @@ public class Report implements CommandInterface {
             Account account = FindHelper.findAccount(user.getAccounts(), command.getAccount());
             if (account != null) {
                 /* checks if the account is a saving account */
-                if (account.getType().equals("savings")) {
-                    ObjectMapper mapper = new ObjectMapper();
-                    ObjectNode resultNode = mapper.createObjectNode();
-                    resultNode.put("command", "report");
 
-                    ObjectNode outputNode = mapper.createObjectNode();
-                    outputNode.put("error",
-                            "This kind of report is not supported for a saving account");
-
-                    resultNode.set("output", outputNode);
-                    resultNode.put("timestamp", command.getTimestamp());
-                    output.add(resultNode);
-                    return;
-                }
+//                if (account.getType().equals("savings")) {
+//                    ObjectMapper mapper = new ObjectMapper();
+//                    ObjectNode resultNode = mapper.createObjectNode();
+//                    resultNode.put("command", "report");
+//
+//                    ObjectNode outputNode = mapper.createObjectNode();
+//                    outputNode.put("error",
+//                            "This kind of report is not supported for a saving account");
+//
+//                    resultNode.set("output", outputNode);
+//                    resultNode.put("timestamp", command.getTimestamp());
+//                    output.add(resultNode);
+//                    return;
+//                }
 
                 int start = command.getStartTimestamp();
                 int end = command.getEndTimestamp();

@@ -28,7 +28,7 @@ public class CreateCard implements CommandInterface {
             Account account = FindHelper.findAccount(user.getAccounts(), command.getAccount());
             if (account != null) {
                 /* creates a new card and adds it to the account's list of cards */
-                Card newCard = new Card();
+                Card newCard = new Card(command.getEmail());
                 account.getCards().add(newCard);
                 /* creates a transaction for the new card */
                 Transaction transaction;

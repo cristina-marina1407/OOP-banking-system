@@ -42,6 +42,43 @@ public final class FindHelper {
         return null;
     }
 
+    public static Account findAccountByCardNumber(final List<User> users, final String cardNumber) {
+        for (User user : users) {
+            for (Account account : user.getAccounts()) {
+                for (Card card : account.getCards()) {
+                    if (card.getCardNumber().equals(cardNumber)) {
+                        return account;
+                    }
+                }
+            }
+        }
+        return null;
+    }
+
+    public static Account findAccountByIban(final List<User> users, final String iban) {
+        for (User user : users) {
+            for (Account account : user.getAccounts()) {
+                if (account.getIban().equals(iban)) {
+                    return account;
+                }
+            }
+        }
+        return null;
+    }
+
+    public static Card findCardByCardNumber(final List<User> users, final String cardNumber) {
+        for (User user : users) {
+            for (Account account : user.getAccounts()) {
+                for (Card card : account.getCards()) {
+                    if (card.getCardNumber().equals(cardNumber)) {
+                        return card;
+                    }
+                }
+            }
+        }
+        return null;
+    }
+
     /**
      * Finds a card by card number
      * @param cards list of cards

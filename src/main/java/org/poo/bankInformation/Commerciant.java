@@ -8,6 +8,7 @@ public class Commerciant {
     private String account;
     private String type;
     private String cashbackStrategy;
+    private int nrOfTransactions;
 
     public Commerciant(final CommerciantInput commerciantInput) {
         this.id = commerciantInput.getId();
@@ -85,5 +86,13 @@ public class Commerciant {
      */
     public void setCashbackStrategy(final String cashbackStrategy) {
         this.cashbackStrategy = cashbackStrategy;
+    }
+
+    public int getNrOfTransactions() {
+        return nrOfTransactions;
+    }
+
+    public void setNrOfTransactions(int nrOfTransactions) {
+        this.nrOfTransactions = nrOfTransactions;
     }
 }

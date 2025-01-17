@@ -21,6 +21,8 @@ public class DeleteCard implements CommandInterface {
     /**
      * Deletes the card from the account
      */
+
+    /* employee poate sa stearga doar cardurile create de el */
     public void execute() {
         for (User user : users) {
             for (Account account : user.getAccounts()) {
@@ -28,7 +30,10 @@ public class DeleteCard implements CommandInterface {
                    in the command */
                 Card card = FindHelper.findCard(account.getCards(), command.getCardNumber());
                 if (card != null) {
-                    account.getCards().remove(card);
+                    if (account.getBalance() <= 0 && !account.getType().equals("classic")) {
+                        account.getCards().remove(card);
+                    }
+
                     /* creates a transaction for the deletion of the card */
                     Transaction transaction;
                     transaction = new Transaction.TransactionBuilder(command.getTimestamp(),

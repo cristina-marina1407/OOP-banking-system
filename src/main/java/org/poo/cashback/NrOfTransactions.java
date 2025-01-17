@@ -1,19 +1,11 @@
 package org.poo.cashback;
 
 import org.poo.bankInformation.Account;
+import org.poo.bankInformation.Commerciant;
 import org.poo.bankInformation.User;
 import org.poo.transactions.Transaction;
 
 public class NrOfTransactions implements StrategyInterface {
-    private int threshold;
-    private double cashback;
-    private String category;
-
-    public NrOfTransactions(final int threshold, final double cashback, final String category) {
-        this.threshold = threshold;
-        this.cashback = cashback;
-        this.category = category;
-    }
 
     /**
      * Calculate the cashback for a transaction based on the number of transactions
@@ -23,16 +15,28 @@ public class NrOfTransactions implements StrategyInterface {
      * @param user the user that made the transaction
      * @return the cashback for the transaction
      */
-    public double calculateCashback(final Transaction transaction, final Account account,
+    public double calculateCashback(Commerciant commerciant, final Transaction transaction, final Account account,
                                     final User user) {
-        String transactioncategory = transaction.getCategory();
-        if (this.category.equals(transactioncategory)) {
-            int transactionCount = account.getTransactionCountForCategory(transactioncategory);
+        int threshold = 0;
+        double cashback = 0.0;
+        if (commerciant.getType().equals("Food")) {
+            threshold = 2;
+            cashback = 0.02;
+        } else if (commerciant.getType().equals("Clothes")) {
+            threshold = 5;
+            cashback = 0.05;
+        } else if (commerciant.getType().equals("Tech")) {
+            threshold = 10;
+            cashback = 0.10;
+        }
 
-            /* checks if the number of transactions of the same category is receiving cashback */
-            if (transactionCount >= this.threshold) {
-                return transaction.getAmount() * this.cashback;
-            }
+        int transactionCount = account.getNrOfTransactions(commerciant.getCommerciant());
+        System.out.println("TransactionCount: " + transactionCount + " " + commerciant.getCommerciant() + " " + threshold);
+        /* checks if the number of transactions of the same category is receiving cashback */
+        if (transactionCount == threshold) {
+            double amount = transaction.getAmount();
+            System.out.println("amount " + amount + " in calculating nr of transactions cashback " + cashback + " commerciant " + commerciant.getCommerciant());
+            return cashback;
         }
         return 0;
     }

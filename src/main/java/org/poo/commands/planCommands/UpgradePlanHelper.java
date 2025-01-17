@@ -35,6 +35,8 @@ public final class UpgradePlanHelper {
             account.getTransactions().add(transaction);
             account.setBalance(account.getBalance() - newAmount);
             user.setServicePlan(newPlanType);
+
+            System.out.println("user " + user.getEmail() + " upgraded plan to " + user.getServicePlan() + " timestamp " + timestamp);
         } else {
             Transaction transaction = new Transaction.TransactionBuilder(timestamp,
                             "Insufficient funds", "upgradePlanError")

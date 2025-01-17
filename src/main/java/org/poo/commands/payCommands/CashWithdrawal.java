@@ -39,75 +39,70 @@ public class CashWithdrawal implements CommandInterface {
         resultNode.put("command", "cashWithdrawal");
         ObjectNode outputNode = objectMapper.createObjectNode();
 
-        int accountFound = 0;
+
+        /* verificare daca user ul este asociat  la contul de business */
 
         User user = FindHelper.findUser(users, command.getEmail());
-        if (user != null) {
-            for (Account account : user.getAccounts()) {
-                Card card = FindHelper.findCard(account.getCards(), command.getCardNumber());
-                if (card != null) {
-                    accountFound = 1;
-                    double newAmount = graph.convert("RON", account.getCurrency(),
-                                       command.getAmount());
-
-                    /* convert the amount to RON */
-                    double ronAmount = graph.convert(account.getCurrency(), "RON", newAmount);
-
-                    /* calculate the commission */
-                    double commission = user.calculateCommission(newAmount, graph, account);
-
-                    if (account.getBalance() >= newAmount + commission) {
-                        if (user.getServicePlan().equals("standard")) {
-                            account.setBalance(account.getBalance() - commission);
-                        }
-
-                        if (user.getServicePlan().equals("silver") && ronAmount >= COMISSION_SUM) {
-                            account.setBalance(account.getBalance() - commission);
-                        }
-
-                        Transaction transaction;
-                        transaction =
-                                new Transaction.TransactionBuilder(
-                                        command.getTimestamp(),
-                                        "Cash withdrawal of " + command.getAmount(),
-                                        "cashWithdrawal")
-                                        .cashWithdrawl(command.getAmount())
-                                        .build();
-                        account.getTransactions().add(transaction);
-                        account.setBalance(account.getBalance() - newAmount);
-
-                        /* formatted the balance after withdrawing cash*/
-                        String formatted = String.format("%.2f", account.getBalance());
-                        double formattedBalance = Double.parseDouble(formatted);
-                        account.setBalance(formattedBalance);
-
-                        break;
-                    }
-                    Transaction transaction;
-                    transaction = new Transaction.TransactionBuilder(command.getTimestamp(),
-                            "Insufficient funds",
-                            "cashWithdrawalError")
-                            .cashWithdrawalError()
-                            .build();
-                    account.getTransactions().add(transaction);
-                    break;
-                }
-            }
-
-            if (accountFound == 0) {
-                outputNode.put("description", "Card not found");
-                outputNode.put("timestamp", command.getTimestamp());
-                resultNode.set("output", outputNode);
-                resultNode.put("timestamp", command.getTimestamp());
-                output.add(resultNode);
-            }
-
-        } else {
+        if (user == null) {
             outputNode.put("description", "User not found");
             outputNode.put("timestamp", command.getTimestamp());
             resultNode.set("output", outputNode);
             resultNode.put("timestamp", command.getTimestamp());
             output.add(resultNode);
+            return;
         }
+
+        Account account = FindHelper.findAccountByCardNumber(users, command.getCardNumber());
+
+        Card card = FindHelper.findCardByCardNumber(users, command.getCardNumber());
+
+        if (card == null || !card.getOwner().equals(command.getEmail())) {
+            outputNode.put("description", "Card not found");
+            outputNode.put("timestamp", command.getTimestamp());
+            resultNode.set("output", outputNode);
+            resultNode.put("timestamp", command.getTimestamp());
+            output.add(resultNode);
+            return;
+        }
+
+        double newAmount = graph.convert("RON", account.getCurrency(),
+                command.getAmount());
+
+        /* calculate the commission */
+        double commission = user.calculateCommission(newAmount, graph, account);
+        if (account.getBalance() >= newAmount + commission) {
+            if (user.getServicePlan().equals("standard")) {
+                account.setBalance(account.getBalance() - commission);
+            }
+
+            if (user.getServicePlan().equals("silver") && command.getAmount() >= COMISSION_SUM) {
+                account.setBalance(account.getBalance() - commission);
+            }
+
+            Transaction transaction;
+            transaction =
+                    new Transaction.TransactionBuilder(
+                            command.getTimestamp(),
+                            "Cash withdrawal of " + command.getAmount(),
+                            "cashWithdrawal")
+                            .cashWithdrawl(command.getAmount())
+                            .build();
+            account.getTransactions().add(transaction);
+            account.setBalance(account.getBalance() - newAmount);
+
+            /* formatted the balance after withdrawing cash*/
+//                        String formatted = String.format("%.2f", account.getBalance());
+//                        double formattedBalance = Double.parseDouble(formatted);
+//                        account.setBalance(account.getBalance());
+
+            return;
+        }
+        Transaction transaction;
+        transaction = new Transaction.TransactionBuilder(command.getTimestamp(),
+                "Insufficient funds",
+                "cashWithdrawalError")
+                .cashWithdrawalError()
+                .build();
+        account.getTransactions().add(transaction);
     }
 }
