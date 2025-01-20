@@ -17,14 +17,18 @@ public class AddNewBusinessAssociate implements CommandInterface {
         this.users = users;
     }
 
+    /**
+     * Adds a new business associate to the account.
+     */
     public void execute() {
         User user = FindHelper.findUser(users, command.getEmail());
         Account account = FindHelper.findAccountByIban(users, command.getAccount());
-        if (account != null) {
-            if (account.getType().equals("business")) {
-                //account.getAssociates().put(command.getEmail(), command.getRole());
-                account.addAssociate(command.getRole(), user);
-//                System.out.println("In business report transactions" + account.getAssociates());
+
+        if (user != null) {
+            if (account != null) {
+                if (account.getType().equals("business")) {
+                    account.addAssociate(command.getRole(), user);
+                }
             }
         }
     }

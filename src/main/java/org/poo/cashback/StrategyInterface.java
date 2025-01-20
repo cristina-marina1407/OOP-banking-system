@@ -11,10 +11,12 @@ import org.poo.transactions.Transaction;
 public interface StrategyInterface {
     /**
      * Calculate the cashback for a transaction.
+     * @param commerciant the commerciant for which the cashback is calculated
      * @param transaction the transaction for which the cashback is calculated
      * @param account the account of the user
      * @param user the user that made the transaction
      * @return the cashback for the transaction
      */
-    double calculateCashback(Commerciant commerciant, Transaction transaction, Account account, User user);
+    double calculateCashback(Commerciant commerciant, Transaction transaction,
+                             Account account, User user);
 }

@@ -43,7 +43,6 @@ public class ChangeInterestRate implements CommandInterface {
                     account.getTransactions().add(transaction);
                     break;
                 } else {
-                    System.out.println(account.getType());
                     ObjectMapper objectMapper = new ObjectMapper();
                     ObjectNode resultNode = objectMapper.createObjectNode();
                     resultNode.put("command", "changeInterestRate");

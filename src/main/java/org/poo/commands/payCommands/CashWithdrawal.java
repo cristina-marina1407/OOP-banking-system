@@ -10,6 +10,7 @@ import org.poo.bankInformation.Graph;
 import org.poo.bankInformation.User;
 import org.poo.commands.commandLogic.CommandInterface;
 import org.poo.commands.helperMethods.FindHelper;
+import org.poo.commands.helperMethods.PrintOutputErrorHelper;
 import org.poo.transactions.Transaction;
 
 import java.util.List;
@@ -39,16 +40,12 @@ public class CashWithdrawal implements CommandInterface {
         resultNode.put("command", "cashWithdrawal");
         ObjectNode outputNode = objectMapper.createObjectNode();
 
-
-        /* verificare daca user ul este asociat  la contul de business */
-
         User user = FindHelper.findUser(users, command.getEmail());
+
+        /* checks if the user was not found and prints an error for that case */
         if (user == null) {
-            outputNode.put("description", "User not found");
-            outputNode.put("timestamp", command.getTimestamp());
-            resultNode.set("output", outputNode);
-            resultNode.put("timestamp", command.getTimestamp());
-            output.add(resultNode);
+            PrintOutputErrorHelper.printOutputError("User not found", outputNode,
+                    resultNode, command, output);
             return;
         }
 
@@ -56,6 +53,7 @@ public class CashWithdrawal implements CommandInterface {
 
         Card card = FindHelper.findCardByCardNumber(users, command.getCardNumber());
 
+        /* check if the card exists and if it belongs to the owner */
         if (card == null || !card.getOwner().equals(command.getEmail())) {
             outputNode.put("description", "Card not found");
             outputNode.put("timestamp", command.getTimestamp());
@@ -65,6 +63,7 @@ public class CashWithdrawal implements CommandInterface {
             return;
         }
 
+        /* a user can withdraw money only in RON */
         double newAmount = graph.convert("RON", account.getCurrency(),
                 command.getAmount());
 
@@ -89,12 +88,6 @@ public class CashWithdrawal implements CommandInterface {
                             .build();
             account.getTransactions().add(transaction);
             account.setBalance(account.getBalance() - newAmount);
-
-            /* formatted the balance after withdrawing cash*/
-//                        String formatted = String.format("%.2f", account.getBalance());
-//                        double formattedBalance = Double.parseDouble(formatted);
-//                        account.setBalance(account.getBalance());
-
             return;
         }
         Transaction transaction;

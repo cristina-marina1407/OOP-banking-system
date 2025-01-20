@@ -26,7 +26,7 @@ public final class SplitPaymentHelper {
      * @param users              the list of users
      * @param graph              the graph that contains the exchange rates
      */
-    public static void processPayment(final SplitPaymentObject splitPaymentObject,
+    public static void processPaymentHelper(final SplitPaymentObject splitPaymentObject,
                                       final List<String> splitAccounts,
                                       final double amount, final List<Double> amounts,
                                       final String splitPaymentType, final List<User> users,
@@ -34,9 +34,6 @@ public final class SplitPaymentHelper {
 
         int checkAccounts = 0;
         List<String> insufficientAccounts = new ArrayList<>();
-
-        /* creates an account that has insufficient funds */
-        //Account accountWithInsufficientFunds = null;
 
         /* check if the accounts have enough funds to make the payment */
         for (int i = 0; i < splitAccounts.size(); i++) {
@@ -55,8 +52,6 @@ public final class SplitPaymentHelper {
             }
         }
 
-
-
         for (int i = 0; i < splitAccounts.size(); i++) {
             String iban = splitAccounts.get(i);
             double customAmount = amounts.get(i);
@@ -70,28 +65,31 @@ public final class SplitPaymentHelper {
                         Transaction transaction;
                         String formattedAmount = String.format("%.2f %s", amount,
                                 splitPaymentObject.getCommand().getCurrency());
+
+                        /* if an account doesn't have enough funds, the payment is not done */
                         transaction = new Transaction.TransactionBuilder(splitPaymentObject
                                 .getCommand().getTimestamp(),
                                 "Split payment of " + formattedAmount, "splitPayment")
                                 .splitPaymentError(splitPaymentObject.getCommand().getCurrency(),
                                         newAmount, splitAccounts,
                                         insufficientAccounts.get(0),
-                                        splitPaymentType, amounts, "Account " + insufficientAccounts.get(0)
+                                        splitPaymentType, amounts,
+                                        "Account " + insufficientAccounts.get(0)
                                                 + " has insufficient funds for a split payment.")
                                 .build();
                         account.getTransactions().add(transaction);
                         /* if the accounts have enough funds, the payment is done */
                     } else {
                         account.setBalance(account.getBalance() - newAmount);
-
+                        /* creates the transaction for the successful payment */
                         Transaction transaction;
                         String formattedAmount = String.format("%.2f %s", amount,
                                 splitPaymentObject.getCommand().getCurrency());
                         transaction = new Transaction.TransactionBuilder(splitPaymentObject
                                 .getCommand().getTimestamp(),
                                 "Split payment of " + formattedAmount, "splitPayment")
-                                .splitPayment(splitPaymentObject.getCommand().getCurrency(), customAmount
-                                        , splitAccounts, splitPaymentType, amounts)
+                                .splitPayment(splitPaymentObject.getCommand().getCurrency(),
+                                        customAmount, splitAccounts, splitPaymentType, amounts)
                                 .build();
                         account.getTransactions().add(transaction);
                     }

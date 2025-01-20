@@ -21,8 +21,6 @@ public class DeleteCard implements CommandInterface {
     /**
      * Deletes the card from the account
      */
-
-    /* employee poate sa stearga doar cardurile create de el */
     public void execute() {
         for (User user : users) {
             for (Account account : user.getAccounts()) {

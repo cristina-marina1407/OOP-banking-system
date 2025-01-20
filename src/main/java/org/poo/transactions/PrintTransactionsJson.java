@@ -112,8 +112,6 @@ public class PrintTransactionsJson {
     public ObjectNode printPayOnline() {
         ObjectMapper objectMapper = new ObjectMapper();
         ObjectNode transactionNode = objectMapper.createObjectNode();
-//        String formatted = String.format("%.2f", transaction.getAmount());
-//        double formattedAmount = Double.parseDouble(formatted);
         transactionNode.put("amount", transaction.getAmount());
         transactionNode.put("commerciant", transaction.getCommerciant());
         transactionNode.put("description", transaction.getDescription());
@@ -160,13 +158,6 @@ public class PrintTransactionsJson {
             involvedAccountsArray.add(account);
         }
         transactionNode.set("involvedAccounts", involvedAccountsArray);
-
-//        if (transaction.getInsufficientAccount() != null) {
-//            transactionNode.put("error", "Account "
-//                                + transaction.getInsufficientAccount()
-//                                + " has insufficient funds for a split payment.");
-//        }
-
         return transactionNode;
     }
 
@@ -203,7 +194,6 @@ public class PrintTransactionsJson {
 
         return transactionNode;
     }
-
 
     /**
      * Prints the JSON object for the change interest rate transaction.

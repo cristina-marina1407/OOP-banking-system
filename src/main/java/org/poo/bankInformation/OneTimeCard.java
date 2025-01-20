@@ -4,7 +4,7 @@ import org.poo.transactions.Transaction;
 import org.poo.utils.Utils;
 
 public class OneTimeCard extends Card {
-    public OneTimeCard(String owner) {
+    public OneTimeCard(final String owner) {
         super(owner);
     }
 
@@ -19,11 +19,6 @@ public class OneTimeCard extends Card {
     public void pay(final Account account, final double amount,
                     final String cardHolder, final int timestamp) {
         account.setBalance(account.getBalance() - amount);
-
-        /*formatare*/
-//        String formatted = String.format("%.2f", account.getBalance());
-//        double formattedBalance = Double.parseDouble(formatted);
-//        account.setBalance(account.getBalance());
 
         /* create a transaction for the deleted card */
         Transaction transactionDelete;

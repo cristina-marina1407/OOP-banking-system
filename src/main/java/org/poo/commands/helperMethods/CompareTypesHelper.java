@@ -7,7 +7,6 @@ public final class CompareTypesHelper {
 
     /**
      * Compare two types
-     *
      * @param type1 the first type
      * @param type2 the second type
      * @return true if the second type is an upgrade plan, false otherwise

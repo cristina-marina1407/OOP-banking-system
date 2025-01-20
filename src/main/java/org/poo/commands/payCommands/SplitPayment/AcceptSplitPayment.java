@@ -9,6 +9,7 @@ import org.poo.bankInformation.Graph;
 import org.poo.bankInformation.User;
 import org.poo.commands.commandLogic.CommandInterface;
 import org.poo.commands.helperMethods.FindHelper;
+import org.poo.commands.helperMethods.PrintOutputErrorHelper;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -45,31 +46,26 @@ public class AcceptSplitPayment implements CommandInterface {
         User user = FindHelper.findUser(users, command.getEmail());
 
         if (user == null) {
-            outputNode.put("description", "User not found");
-            outputNode.put("timestamp", command.getTimestamp());
-            resultNode.set("output", outputNode);
-            resultNode.put("timestamp", command.getTimestamp());
-            output.add(resultNode);
+            PrintOutputErrorHelper.printOutputError("User not found", outputNode,
+                    resultNode, command, output);
             return;
         }
-
-
 
         for (SplitPaymentObject splitPayment : activeSplitPayments) {
             if (splitPayment != null) {
                 List<String> accounts = splitPayment.getCommand().getAccounts();
                 for (String account : accounts) {
-                    if (user != null) {
-                        for (Account userAccount : user.getAccounts()) {
-                            /* accepts the splitPayment of the account that has this email
-                            and adds it to the list of the users that accepted the payment*/
-                            if (userAccount.getIban().equals(account) &&
-                                splitPayment.getSplitPaymentType().equals(command.getSplitPaymentType())) {
-                                splitPayment.addAcceptedUser(account);
-                                break;
-                            }
+                    for (Account userAccount : user.getAccounts()) {
+                        /* accepts the splitPayment of the account that has this email
+                        and adds it to the list of the users that accepted the payment*/
+                        if (userAccount.getIban().equals(account)
+                                && splitPayment.getSplitPaymentType()
+                                .equals(command.getSplitPaymentType())) {
+                            splitPayment.addAcceptedUser(account);
+                            break;
                         }
                     }
+
                 }
                 /* if all the accounts have accepted the splitPayment, the payment is processed */
                 if (splitPayment.isFullyAccepted(accounts)) {
@@ -90,20 +86,22 @@ public class AcceptSplitPayment implements CommandInterface {
         List<String> splitAccounts = splitPaymentObject.getCommand().getAccounts();
         List<Double> amounts = splitPaymentCommand.getAmountForUsers();
 
+        /* realizes the payment based on the split payment type */
         if (splitPaymentType.equals("equal")) {
             double moneySplit = splitPaymentCommand.getAmount() / splitAccounts.size();
 
+            /* creates a list with the equal amounts that each account has to pay */
             List<Double> equalAmounts = new ArrayList<>();
             for (int i = 0; i < splitAccounts.size(); i++) {
                 equalAmounts.add(moneySplit);
             }
 
-            SplitPaymentHelper.processPayment(splitPaymentObject, splitAccounts,
+            SplitPaymentHelper.processPaymentHelper(splitPaymentObject, splitAccounts,
                                               splitPaymentCommand.getAmount(),
                                               equalAmounts, splitPaymentType, users, graph);
             splitPaymentManager.removeSplitPayment(splitPaymentObject);
         } else if (splitPaymentType.equals("custom")) {
-            SplitPaymentHelper.processPayment(splitPaymentObject, splitAccounts,
+            SplitPaymentHelper.processPaymentHelper(splitPaymentObject, splitAccounts,
                                               splitPaymentCommand.getAmount(),
                                               amounts, splitPaymentType, users, graph);
             splitPaymentManager.removeSplitPayment(splitPaymentObject);

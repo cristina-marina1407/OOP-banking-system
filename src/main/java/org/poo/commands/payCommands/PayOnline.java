@@ -12,11 +12,14 @@ import org.poo.bankInformation.User;
 
 import org.poo.cashback.CashbackHelper;
 import org.poo.commands.commandLogic.CommandInterface;
-import org.poo.commands.helperMethods.CountTransactionsHelper;
 import org.poo.commands.helperMethods.FindHelper;
+import org.poo.commands.helperMethods.PrintOutputErrorHelper;
+import org.poo.commands.planCommands.AutoUpgrade;
 import org.poo.transactions.Transaction;
 
 import java.util.List;
+
+import static org.poo.commands.helperMethods.TakeCommissionHelper.takeCommission;
 
 public class PayOnline implements CommandInterface {
     private Command command;
@@ -24,7 +27,6 @@ public class PayOnline implements CommandInterface {
     private List<Commerciant> commerciants;
     private Graph graph;
     private ArrayNode output;
-    private static final int COMISSION_SUM = 500;
 
     public PayOnline(final List<User> users, final Command command, final Graph graph,
                      final ArrayNode output, final List<Commerciant> commerciants) {
@@ -39,76 +41,51 @@ public class PayOnline implements CommandInterface {
      * Pay online command
      */
     public void execute() {
+        ObjectMapper objectMapper = new ObjectMapper();
+        ObjectNode resultNode = objectMapper.createObjectNode();
+        resultNode.put("command", "payOnline");
+        ObjectNode outputNode = objectMapper.createObjectNode();
+
         User user = FindHelper.findUser(users, command.getEmail());
-
         Card card = FindHelper.findCardByCardNumber(users, command.getCardNumber());
-
         /* checks if the card was not found and prints an error for that case */
         if (card == null) {
-            ObjectMapper objectMapper = new ObjectMapper();
-            ObjectNode resultNode = objectMapper.createObjectNode();
-            resultNode.put("command", "payOnline");
-            resultNode.put("timestamp", command.getTimestamp());
-            ObjectNode outputDetails = resultNode.putObject("output");
-            outputDetails.put("description", "Card not found");
-            outputDetails.put("timestamp", command.getTimestamp());
-            output.add(resultNode);
+            PrintOutputErrorHelper.printOutputError("Card not found", outputNode, resultNode,
+                                              command, output);
             return;
         }
-
         Account account = FindHelper.findAccountByCardNumber(users, command.getCardNumber());
-
+        /* convert the amount to the currency of the account */
         double newAmount = graph.convert(command.getCurrency(), account.getCurrency(),
                 command.getAmount());
-
-//       System.out.println("PRINT NOU PAYONLINE" + " card " + card.getCardNumber() + " acount " + account.getIban() + " user "
-//               + user.getEmail() + " command " + command.getTimestamp());
-
+        /* convert the amount to RON */
+        double ronAmount = graph.convert(account.getCurrency(), "RON", newAmount);
 
         if (account.getType().equals("business")) {
+            /* checks if the associate has exceeded the spending limit */
             if (account.isEmployee(command.getEmail())
                     && newAmount > account.getSpendingLimit()) {
-                System.out.println("user " + user.getEmail() + " exceeded spending limit " + account.getSpendingLimit() +
-                        " timestamp " + command.getTimestamp() + " amount " + newAmount);
                 return;
             }
-
+            /* checks if the user is an associate to the business account */
             if (!user.getEmail().equals(account.getOwner())
                     && !account.isAssociate(command.getEmail())) {
-                ObjectMapper objectMapper = new ObjectMapper();
-                ObjectNode resultNode = objectMapper.createObjectNode();
-                resultNode.put("command", "payOnline");
-                resultNode.put("timestamp", command.getTimestamp());
-                ObjectNode outputDetails = resultNode.putObject("output");
-                outputDetails.put("description", "Card not found");
-                outputDetails.put("timestamp", command.getTimestamp());
-                output.add(resultNode);
+                PrintOutputErrorHelper.printOutputError("Card not found", outputNode, resultNode,
+                                                  command, output);
                 return;
             }
-
-            double ronAmount = graph.convert(account.getCurrency(), "RON", newAmount);
-
-            System.out.println("ronAmount " + ronAmount + " timestamp " + command.getTimestamp() + " user " + user.getEmail() + " account owner " + account.getOwner() +
-                    " card owner " + card.getOwner());
-
             User owner = FindHelper.findUser(users, account.getOwner());
-
+            /* calculate the commission */
             double commission = owner.calculateCommission(newAmount, graph, account);
-
-
             /* checks if the card is active and if it has funds for the payment */
             if (card.getStatus().equals("active")) {
-
                 if (newAmount == 0) {
                     return;
                 }
-
                 if (account.getBalance() >= newAmount + commission) {
-                    /* creates the transaction for the payment */
                     String commerciantName = command.getCommerciant();
                     String category = null;
                     Commerciant commerciantToPay = null;
-
                     /* finds the commerciant and the commerciant type */
                     for (Commerciant commerciant : commerciants) {
                         if (commerciant.getCommerciant().equals(commerciantName)) {
@@ -117,124 +94,62 @@ public class PayOnline implements CommandInterface {
                             break;
                         }
                     }
-
+                    /* creates the transaction for the payment */
                     Transaction transaction;
                     transaction =
                             new Transaction.TransactionBuilder(command.getTimestamp(),
                                     "Card payment", "payOnline")
-                                    .payOnline(newAmount, command.getCommerciant(), category, user.getEmail())
+                                    .payOnline(newAmount, command.getCommerciant(), category,
+                                               user.getEmail())
                                     .build();
                     account.getTransactions().add(transaction);
-
                     card.pay(account, newAmount, command.getEmail(),
                             command.getTimestamp());
-
-
                     /* applies the cashback */
                     if (commerciantToPay != null) {
                         account.updateNrOfTransactions(commerciantToPay.getCommerciant());
                         CashbackHelper.applyCashback(commerciantToPay, account, category,
                                 transaction, user, graph, command, users);
                     }
-
-                    boolean upgradeCheck = CountTransactionsHelper.countTransactions(user, graph);
-
-                    if (upgradeCheck) {
-                        if (user.getServicePlan().equals("silver")) {
-                            user.setServicePlan("gold");
-                            Transaction transactionUpgrade = new Transaction.TransactionBuilder(command.getTimestamp(),
-                                    "Upgrade plan", "upgradePlan")
-                                    .upgradePlan("gold", account.getIban())
-                                    .build();
-                            account.getTransactions().add(transactionUpgrade);
-                            System.out.println("payOnline" + "user" + user.getEmail() + " updated from silver to gold timestamp " + command.getTimestamp());
-                        }
-                    }
-
-                    //System.out.println(account.getAssociates());
-
+                    AutoUpgrade.autoUpgrade(user, account, command, graph);
+                    /* updates the total spent by the associate and the total spent
+                     to a commerciant */
                     account.addSpending(commerciantName, command.getEmail(), newAmount);
                     account.updateTotalSpentByAssociate(command.getEmail(), newAmount);
-
-                    if (owner.getServicePlan().equals("standard")) {
-                        account.setBalance(account.getBalance() - commission);
-                    }
-
-                    if (owner.getServicePlan().equals("silver")
-                            && ronAmount >= COMISSION_SUM) {
-                        account.setBalance(account.getBalance() - commission);
-                    }
-
-                    System.out.println("business " + "timestamp " + command.getTimestamp() + " pay online account: " + account.getIban() + " email " +
-                            command.getEmail() + " amount " + newAmount + " commerciant " + commerciantToPay.getCommerciant() + " strategy " +
-                            commerciantToPay.getCashbackStrategy() + " comission " + commission + " plan " + owner.getServicePlan() + " balance " + account.getBalance());
-
-                    /* check if the user can be upgraded to gold */
+                    /* takes the commission from the account for the owner service plan */
+                    takeCommission(owner, account, ronAmount, commission);
                     return;
                 } else {
-                            /* creates a transaction for the case when the account
-                             has insufficient funds */
-                    Transaction transaction;
-                    transaction = new Transaction.TransactionBuilder(command.getTimestamp(),
-                            "Insufficient funds", "payOnlineError")
-                            .payOnlineError()
-                            .build();
-                    account.getTransactions().add(transaction);
+                    /* creates a transaction for the case when the account
+                     has insufficient funds */
+                    payOnlineErrorTransaction(command, account, "Insufficient funds");
                 }
                 return;
             } else {
                 /* creates a transaction for the case when the card is frozen */
-                Transaction transaction;
-                transaction = new Transaction.TransactionBuilder(command.getTimestamp(),
-                        "The card is frozen", "payOnlineError")
-                        .payOnlineError()
-                        .build();
-                account.getTransactions().add(transaction);
+                payOnlineErrorTransaction(command, account, "The card is frozen");
                 return;
             }
         }
 
-
-                    /* daca contul nu e de business, daca cel ce incearca
-                     sa foloseasca cardul nu e proprietarul cardului */
-
-                    /* daca contul e de business verifica daca utilizatorul care
-                    vrea sa faca plata apartine contului de business */
-
+        /* checks if the user is the card owner if the account is not of type business */
         if ((account.getType().equals("classic") || account.getType().equals("savings"))
                 && !card.getOwner().equals(command.getEmail())) {
-            ObjectMapper objectMapper = new ObjectMapper();
-            ObjectNode resultNode = objectMapper.createObjectNode();
-            resultNode.put("command", "payOnline");
-            resultNode.put("timestamp", command.getTimestamp());
-            ObjectNode outputDetails = resultNode.putObject("output");
-            outputDetails.put("description", "Card not found");
-            outputDetails.put("timestamp", command.getTimestamp());
-            output.add(resultNode);
+            PrintOutputErrorHelper.printOutputError("Card not found", outputNode, resultNode,
+                                              command, output);
             return;
         }
 
-//        System.out.println("timestamp " + command.getTimestamp() + " user " + user.getEmail() + " account owner " + account.getOwner() +
-//                " card owner " + card.getOwner() + " associates " + account.getAssociates());
-
-
-
-
-        double ronAmount = graph.convert(account.getCurrency(), "RON", newAmount);
         double commission = user.calculateCommission(newAmount, graph, account);
         /* checks if the card is active and if it has funds for the payment */
         if (card.getStatus().equals("active")) {
-
             if (newAmount == 0) {
                 return;
             }
-
             if (account.getBalance() >= newAmount + commission) {
-                /* creates the transaction for the payment */
                 String commerciantName = command.getCommerciant();
                 String category = null;
                 Commerciant commerciantToPay = null;
-
                 /* finds the commerciant and the commerciant type */
                 for (Commerciant commerciant : commerciants) {
                     if (commerciant.getCommerciant().equals(commerciantName)) {
@@ -243,73 +158,51 @@ public class PayOnline implements CommandInterface {
                         break;
                     }
                 }
-
                 Transaction transaction;
                 transaction =
                         new Transaction.TransactionBuilder(command.getTimestamp(),
                                 "Card payment", "payOnline")
-                                .payOnline(newAmount, command.getCommerciant(), category, user.getEmail())
+                                .payOnline(newAmount, command.getCommerciant(), category,
+                                           user.getEmail())
                                 .build();
                 account.getTransactions().add(transaction);
 
                 card.pay(account, newAmount, command.getEmail(),
                         command.getTimestamp());
-
-
                 /* applies the cashback */
                 if (commerciantToPay != null) {
                     account.updateNrOfTransactions(commerciantToPay.getCommerciant());
                     CashbackHelper.applyCashback(commerciantToPay, account, category,
                             transaction, user, graph, command, users);
                 }
-
-                boolean upgradeCheck = CountTransactionsHelper.countTransactions(user, graph);
-
-                if (upgradeCheck) {
-                    if (user.getServicePlan().equals("silver")) {
-                        user.setServicePlan("gold");
-                        Transaction transactionUpgrade = new Transaction.TransactionBuilder(command.getTimestamp(),
-                                "Upgrade plan", "upgradePlan")
-                                .upgradePlan("gold", account.getIban())
-                                .build();
-                        account.getTransactions().add(transactionUpgrade);
-                        System.out.println("payOnline" + "user" + user.getEmail() + " updated from silver to gold timestamp " + command.getTimestamp());
-
-                    }
-                }
-
-                System.out.println("classic " + "timestamp " + command.getTimestamp() + " pay online account: " + account.getIban() + " email " + command.getEmail() +
-                        " amount " + newAmount + " commerciant " + commerciantToPay.getCommerciant() + " strategy " + commerciantToPay.getCashbackStrategy() + " comission " + commission + " plan " + user.getServicePlan());
-
-                if (user.getServicePlan().equals("standard")) {
-                    account.setBalance(account.getBalance() - commission);
-                }
-
-                if (user.getServicePlan().equals("silver")
-                        && ronAmount >= COMISSION_SUM) {
-                    account.setBalance(account.getBalance() - commission);
-                }
-
-                /* check if the user can be upgraded to gold */
-
+                AutoUpgrade.autoUpgrade(user, account, command, graph);
+                /* takes the commission from the account for the user service plan */
+                takeCommission(user, account, ronAmount, commission);
             } else {
-                            /* creates a transaction for the case when the account
-                             has insufficient funds */
-                Transaction transaction;
-                transaction = new Transaction.TransactionBuilder(command.getTimestamp(),
-                        "Insufficient funds", "payOnlineError")
-                        .payOnlineError()
-                        .build();
-                account.getTransactions().add(transaction);
+                /* creates a transaction for the case when the account
+                has insufficient funds */
+                payOnlineErrorTransaction(command, account, "Insufficient funds");
             }
         } else {
             /* creates a transaction for the case when the card is frozen */
-            Transaction transaction;
-            transaction = new Transaction.TransactionBuilder(command.getTimestamp(),
-                    "The card is frozen", "payOnlineError")
-                    .payOnlineError()
-                    .build();
-            account.getTransactions().add(transaction);
+            payOnlineErrorTransaction(command, account, "The card is frozen");
         }
+    }
+
+    /**
+     * Create a transaction for the error of the online payment
+     * @param command the command
+     * @param account the account
+     * @param error the error message
+     */
+    public static void payOnlineErrorTransaction(final Command command,
+                                                 final Account account,
+                                                 final String error) {
+        Transaction transaction = new Transaction.TransactionBuilder(
+                command.getTimestamp(), error,
+                "payOnlineError")
+                .payOnlineError()
+                .build();
+        account.getTransactions().add(transaction);
     }
 }

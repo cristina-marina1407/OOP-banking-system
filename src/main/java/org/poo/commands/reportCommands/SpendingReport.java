@@ -8,6 +8,7 @@ import org.poo.bankInformation.Command;
 import org.poo.bankInformation.User;
 import org.poo.commands.commandLogic.CommandInterface;
 import org.poo.commands.helperMethods.FindHelper;
+import org.poo.commands.helperMethods.PrintOutputErrorHelper;
 import org.poo.transactions.PrintTransactionsJson;
 import org.poo.transactions.Transaction;
 
@@ -30,19 +31,20 @@ public class SpendingReport implements CommandInterface {
      * Creates the report of the online payments of an account
      */
     public void execute() {
+        ObjectMapper mapper = new ObjectMapper();
+        ObjectNode resultNode = mapper.createObjectNode();
+        resultNode.put("command", "spendingsReport");
+        ObjectNode outputNode = mapper.createObjectNode();
+
         /* creates a TreeMap for the total amount spent at each commerciant */
         Map<String, Double> sortedCommerciants = new TreeMap<>();
         boolean accountFound = false;
+
         for (User user : users) {
             Account account = FindHelper.findAccount(user.getAccounts(), command.getAccount());
             /* checks if the account is a saving account */
             if (account != null) {
                 if (account.getType().equals("savings")) {
-                    ObjectMapper mapper = new ObjectMapper();
-                    ObjectNode resultNode = mapper.createObjectNode();
-                    resultNode.put("command", "spendingsReport");
-
-                    ObjectNode outputNode = mapper.createObjectNode();
                     outputNode.put("error",
                                 "This kind of report is not supported for a saving account");
 
@@ -52,17 +54,10 @@ public class SpendingReport implements CommandInterface {
                     return;
                 }
 
-
                 int start = command.getStartTimestamp();
                 int end = command.getEndTimestamp();
-                ObjectMapper mapper = new ObjectMapper();
-                ObjectNode resultNode = mapper.createObjectNode();
-                resultNode.put("command", "spendingsReport");
 
-                ObjectNode outputNode = mapper.createObjectNode();
                 outputNode.put("IBAN", account.getIban());
-//                String formatted = String.format("%.2f", account.getBalance());
-//                double formattedBalance = Double.parseDouble(formatted);
                 outputNode.put("balance", account.getBalance());
                 outputNode.put("currency", account.getCurrency());
 
@@ -111,20 +106,10 @@ public class SpendingReport implements CommandInterface {
                 break;
             }
         }
-
         /* checks if the account was not found and prints an error for that case */
         if (!accountFound) {
-            ObjectMapper mapper = new ObjectMapper();
-            ObjectNode resultNode = mapper.createObjectNode();
-            resultNode.put("command", "spendingsReport");
-
-            ObjectNode outputNode = mapper.createObjectNode();
-            outputNode.put("description", "Account not found");
-            outputNode.put("timestamp", command.getTimestamp());
-
-            resultNode.set("output", outputNode);
-            resultNode.put("timestamp", command.getTimestamp());
-            output.add(resultNode);
+            PrintOutputErrorHelper.printOutputError("Account not found", outputNode,
+                    resultNode, command, output);
         }
     }
 }

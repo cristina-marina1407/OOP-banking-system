@@ -9,6 +9,7 @@ import org.poo.bankInformation.Command;
 import org.poo.bankInformation.User;
 import org.poo.commands.commandLogic.CommandInterface;
 import org.poo.commands.helperMethods.FindHelper;
+import org.poo.commands.helperMethods.PrintOutputErrorHelper;
 import org.poo.transactions.Transaction;
 
 import java.util.List;
@@ -30,6 +31,11 @@ public class CheckCardStatus implements CommandInterface {
      * Checks the status of the card
      */
     public void execute() {
+        ObjectMapper objectMapper = new ObjectMapper();
+        ObjectNode resultNode = objectMapper.createObjectNode();
+        resultNode.put("command", "checkCardStatus");
+        ObjectNode outputNode = objectMapper.createObjectNode();
+
         boolean cardFound = false;
         for (User user : users) {
             for (Account account : user.getAccounts()) {
@@ -56,14 +62,8 @@ public class CheckCardStatus implements CommandInterface {
         }
         /* checks if the card was not found and prints an error for that case */
         if (!cardFound) {
-            ObjectMapper objectMapper = new ObjectMapper();
-            ObjectNode resultNode = objectMapper.createObjectNode();
-            resultNode.put("command", "checkCardStatus");
-            resultNode.put("timestamp", command.getTimestamp());
-            ObjectNode outputDetails = resultNode.putObject("output");
-            outputDetails.put("description", "Card not found");
-            outputDetails.put("timestamp", command.getTimestamp());
-            output.add(resultNode);
+            PrintOutputErrorHelper.printOutputError("Card not found", outputNode,
+                    resultNode, command, output);
         }
     }
 }

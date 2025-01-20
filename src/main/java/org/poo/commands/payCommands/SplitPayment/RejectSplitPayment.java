@@ -9,6 +9,7 @@ import org.poo.bankInformation.Graph;
 import org.poo.bankInformation.User;
 import org.poo.commands.commandLogic.CommandInterface;
 import org.poo.commands.helperMethods.FindHelper;
+import org.poo.commands.helperMethods.PrintOutputErrorHelper;
 import org.poo.transactions.Transaction;
 
 import java.util.ArrayList;
@@ -35,14 +36,12 @@ public class RejectSplitPayment implements CommandInterface {
      * Rejects a split payment
      */
     public void execute() {
-        //System.out.println("here");
-
         ObjectMapper objectMapper = new ObjectMapper();
         ObjectNode resultNode = objectMapper.createObjectNode();
         resultNode.put("command", "rejectSplitPayment");
         ObjectNode outputNode = objectMapper.createObjectNode();
 
-        int userFound = 0;
+        boolean userFound = false;
 
         List<SplitPaymentObject> activeSplitPayments
                 = splitPaymentManager.getActiveSplitPayments();
@@ -57,7 +56,7 @@ public class RejectSplitPayment implements CommandInterface {
                 for (String account : accounts) {
                     User user = FindHelper.findUser(users, command.getEmail());
                     if (user != null) {
-                        userFound = 1;
+                        userFound = true;
                         for (Account userAccount : user.getAccounts()) {
                             /* add the split payment to the list after a reject */
                             if (userAccount.getIban().equals(account)) {
@@ -71,8 +70,8 @@ public class RejectSplitPayment implements CommandInterface {
             }
         }
 
+        /* creates the list of accounts involved in the split payment */
         List<Account> involvedAccounts = new ArrayList<>();
-
         if (paymentToRemove != null) {
             for (User user : users) {
                 for (String iban : paymentToRemove.getCommand().getAccounts()) {
@@ -85,12 +84,14 @@ public class RejectSplitPayment implements CommandInterface {
             }
         }
 
+        /* creates the transaction for each account involved in the split payment */
         if (paymentToRemove != null) {
             for (Account account : involvedAccounts) {
                 Transaction transaction;
                 double newAmount = graph.convert(paymentToRemove.getCommand().getCurrency(),
                         account.getCurrency(), paymentToRemove.getCommand().getAmount());
-                String formattedAmount = String.format("%.2f %s", paymentToRemove.getCommand().getAmount(),
+                String formattedAmount = String.format("%.2f %s",
+                        paymentToRemove.getCommand().getAmount(),
                         paymentToRemove.getCommand().getCurrency());
                 transaction = new Transaction.TransactionBuilder(paymentToRemove
                         .getCommand().getTimestamp(),
@@ -98,35 +99,19 @@ public class RejectSplitPayment implements CommandInterface {
                         .splitPaymentError(paymentToRemove.getCommand().getCurrency(),
                                 newAmount, paymentToRemove.getCommand().getAccounts(),
                                 null,
-                                paymentToRemove.getSplitPaymentType(), paymentToRemove.getCommand().getAmountForUsers(),
+                                paymentToRemove.getSplitPaymentType(),
+                                paymentToRemove.getCommand().getAmountForUsers(),
                                 "One user rejected the payment.")
                         .build();
                 account.getTransactions().add(transaction);
             }
         }
-
-        if (userFound == 0) {
-            outputNode.put("description", "User not found");
-            outputNode.put("timestamp", command.getTimestamp());
-            resultNode.set("output", outputNode);
-            resultNode.put("timestamp", command.getTimestamp());
-            output.add(resultNode);
-            return;
+        /* check if the user was found and prints an error in that case */
+        if (!userFound) {
+            PrintOutputErrorHelper.printOutputError("User not found", outputNode,
+                    resultNode, command, output);
         }
+        /* remove the split payment from the list */
         activeSplitPayments.remove(paymentToRemove);
     }
-
-    public List<Account> findAccountsByIban(List<String> ibans, List<Account> allAccounts) {
-        List<Account> involvedAccounts = new ArrayList<>();
-        for (String iban : ibans) {
-            for (Account account : allAccounts) {
-                if (account.getIban().equals(iban)) {
-                    involvedAccounts.add(account);
-                    break;
-                }
-            }
-        }
-        return involvedAccounts;
-    }
-
 }

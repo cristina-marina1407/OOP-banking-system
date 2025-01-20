@@ -8,6 +8,7 @@ import org.poo.bankInformation.Command;
 import org.poo.bankInformation.User;
 import org.poo.commands.commandLogic.CommandInterface;
 import org.poo.commands.helperMethods.FindHelper;
+import org.poo.commands.helperMethods.PrintOutputErrorHelper;
 
 import java.util.List;
 
@@ -16,12 +17,16 @@ public class ChangeDepositLimit implements CommandInterface {
     private List<User> users;
     private ArrayNode output;
 
-    public ChangeDepositLimit(final List<User> users, final Command command, final ArrayNode output) {
+    public ChangeDepositLimit(final List<User> users, final Command command,
+                              final ArrayNode output) {
         this.command = command;
         this.users = users;
         this.output = output;
     }
 
+    /**
+     * This method changes the deposit limit of a business account.
+     */
     public void execute() {
         ObjectMapper objectMapper = new ObjectMapper();
         ObjectNode resultNode = objectMapper.createObjectNode();
@@ -41,12 +46,12 @@ public class ChangeDepositLimit implements CommandInterface {
                 }
             }
         }
+
+        /* if the email is not the owner's email, the deposit limit cannot be changed. */
         if (!checkEmail) {
-            outputNode.put("description", "You must be owner in order to change deposit limit.");
-            outputNode.put("timestamp", command.getTimestamp());
-            resultNode.set("output", outputNode);
-            resultNode.put("timestamp", command.getTimestamp());
-            output.add(resultNode);
+            PrintOutputErrorHelper.printOutputError("You must be owner in order"
+                            + " to change deposit limit.",
+                            outputNode, resultNode, command, output);
         }
     }
 }

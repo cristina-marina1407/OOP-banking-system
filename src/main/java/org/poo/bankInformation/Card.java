@@ -22,11 +22,6 @@ public class Card {
     public void pay(final Account account, final double amount,
                     final String cardHolder, final int timestamp) {
         account.setBalance(account.getBalance() - amount);
-
-        /* formatted the balance after paying with the card */
-//        String formatted = String.format("%.2f", account.getBalance());
-//        double formattedBalance = Double.parseDouble(formatted);
-//        account.setBalance(account.getBalance());
     }
 
     /**
@@ -57,11 +52,17 @@ public class Card {
         this.status = status;
     }
 
+    /**
+     * @return the owner
+     */
     public String getOwner() {
         return owner;
     }
 
-    public void setOwner(String owner) {
+    /**
+     * @param owner the owner to set
+     */
+    public void setOwner(final String owner) {
         this.owner = owner;
     }
 }

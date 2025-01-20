@@ -7,6 +7,9 @@ import java.time.Period;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import static org.poo.commands.helperMethods.Constants.STANDARD_COMMISSION_RATE;
+import static org.poo.commands.helperMethods.Constants.SILVER_COMMISSION_RATE;
+import static org.poo.commands.helperMethods.Constants.SILVER_THRESHOLD_RON;
 
 public class User {
     private String firstName;
@@ -16,10 +19,6 @@ public class User {
     private String occupation;
     private String servicePlan;
     private List<Account> accounts;
-
-    private static final double STANDARD_COMMISSION_RATE = 0.002;
-    private static final double SILVER_COMMISSION_RATE = 0.001;
-    private static final double SILVER_THRESHOLD_RON = 500;
 
     public User(final UserInput userInput) {
         this.firstName = userInput.getFirstName();

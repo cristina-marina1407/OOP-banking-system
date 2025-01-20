@@ -7,9 +7,12 @@ import org.poo.transactions.Transaction;
 
 import java.util.List;
 
-public final class CountTransactionsHelper {
-    private static final double NUMBER_OF_PAYMENTS_FOR_UPGRADE = 5;
+import static org.poo.commands.helperMethods.Constants.NUMBER_OF_PAYMENTS_FOR_UPGRADE;
+import static org.poo.commands.helperMethods.Constants.RON_AMOUNT_FOR_COUNT;
 
+
+
+public final class CountTransactionsHelper {
     private CountTransactionsHelper() {
 
     }
@@ -28,15 +31,20 @@ public final class CountTransactionsHelper {
             List<Transaction> transactions = account.getTransactions();
             for (Transaction transaction : transactions) {
                 double amount = transaction.getAmount();
+
+                /* convert the amount to RON */
                 double ronAmount = graph.convert(account.getCurrency(), "RON", amount);
 
+                /* checks if the transaction is of type "payOnline" or "sendMoney"
+                 to a commerciant */
                 if ((transaction.getType().equals("payOnline")
-                    || (transaction.getType().equals("sendMoney") && transaction.getReceiverIban() != null)) &&
-                        ronAmount >= 300) {
+                    || (transaction.getType().equals("sendMoney")
+                    && transaction.getReceiverIban() != null))
+                    && ronAmount >= RON_AMOUNT_FOR_COUNT) {
                     count++;
-                    System.out.println("amountTransaction " + transaction.getAmount() + " currency " + transaction.getCurrency() + " iban " + transaction.getCommerciant());
                 }
 
+                /* if the number of transactions is greater than or equal to 5, return true */
                 if (count >= NUMBER_OF_PAYMENTS_FOR_UPGRADE) {
                     return true;
                 }

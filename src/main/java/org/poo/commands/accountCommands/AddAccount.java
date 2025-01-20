@@ -33,37 +33,35 @@ public class AddAccount implements CommandInterface {
                     .savings(command.getInterestRate())
                     .build();
             /* creates a transaction for the new savings account */
-            Transaction transaction;
-            transaction = new Transaction.TransactionBuilder(command.getTimestamp(),
-                    "New account created", "addAccount")
-                    .addAccount()
-                    .build();
-            newAccount.getTransactions().add(transaction);
+            newAccountTransaction(newAccount);
         } else if (command.getAccountType().equals("business")) {
             newAccount = new Account.AccountBuilder(command.getCurrency(),
                     command.getAccountType())
                     .business(command.getEmail(), graph)
                     .build();
-            /* creates a transaction for the new savings account */
-            Transaction transaction;
-            transaction = new Transaction.TransactionBuilder(command.getTimestamp(),
-                    "New account created", "addAccount")
-                    .addAccount()
-                    .build();
-            newAccount.getTransactions().add(transaction);
+            /* creates a transaction for the new business account */
+            newAccountTransaction(newAccount);
         } else {
             newAccount = new Account.AccountBuilder(command.getCurrency(),
                     command.getAccountType())
                     .build();
             /* creates a transaction for the new account */
-            Transaction transaction;
-            transaction = new Transaction.TransactionBuilder(command.getTimestamp(),
-                    "New account created", "addAccount")
-                    .addAccount()
-                    .build();
-            newAccount.getTransactions().add(transaction);
+            newAccountTransaction(newAccount);
         }
         /* adds the new account to the user */
         user.getAccounts().add(newAccount);
+    }
+
+    /**
+     * Creates a transaction for the new account
+     * @param newAccount the new account
+     */
+    public void newAccountTransaction(final Account newAccount) {
+        Transaction transaction;
+        transaction = new Transaction.TransactionBuilder(command.getTimestamp(),
+                "New account created", "addAccount")
+                .addAccount()
+                .build();
+        newAccount.getTransactions().add(transaction);
     }
 }

@@ -137,6 +137,7 @@ public class Transaction {
          * @param givenAmount the amount to send
          * @param givenTransferType the type of transfer
          * @param givenCurrency the currency of the transfer
+         * @param givenEmail the email of the receiver
          * @return the updated TransactionBuilder
          */
         public TransactionBuilder sendMoney(final String givenSenderIban,
@@ -201,6 +202,8 @@ public class Transaction {
          * Sets the type to payOnline.
          * @param givenAmount the amount to pay
          * @param givenCommerciant the commerciant to pay
+         * @param givenCategory the category of the payment
+         * @param givenEmail the email of the receiver
          * @return the updated TransactionBuilder
          */
         public TransactionBuilder payOnline(final double givenAmount,
@@ -251,6 +254,9 @@ public class Transaction {
          * @param givenAmount the amount to pay
          * @param givenInvolvedAccounts the accounts involved in the payment
          * @param givenInsufficientAccount the account with insufficient funds
+         * @param givenSplitPaymentType the type of split payment
+         * @param givenAmountForUsers the amount for each user
+         * @param givenError the error message
          * @return the updated TransactionBuilder
          */
         public TransactionBuilder splitPaymentError(final String givenCurrency,
@@ -636,19 +642,31 @@ public class Transaction {
         this.amountForUsers = amountForUsers;
     }
 
+    /**
+     * @return the error
+     */
     public String getError() {
         return error;
     }
 
-    public void setError(String error) {
+    /**
+     * @param error the error to set
+     */
+    public void setError(final String error) {
         this.error = error;
     }
 
+    /**
+     * @return the email
+     */
     public String getEmail() {
         return email;
     }
 
-    public void setEmail(String email) {
+    /**
+     * @param email the email to set
+     */
+    public void setEmail(final String email) {
         this.email = email;
     }
 }

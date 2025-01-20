@@ -20,6 +20,10 @@ public class SplitPaymentManager {
         activeSplitPaymentsList.add(data);
     }
 
+    /**
+     * Remove a split payment from the list of active split payments.
+     * @param splitPayment the split payment to remove
+     */
     public void removeSplitPayment(final SplitPaymentObject splitPayment) {
         activeSplitPaymentsList.remove(splitPayment);
     }

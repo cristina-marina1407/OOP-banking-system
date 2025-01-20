@@ -10,7 +10,12 @@ import org.poo.bankInformation.User;
 import org.poo.commands.commandLogic.CommandInterface;
 import org.poo.commands.helperMethods.CompareTypesHelper;
 import org.poo.commands.helperMethods.FindHelper;
+import org.poo.commands.helperMethods.PrintOutputErrorHelper;
 import org.poo.transactions.Transaction;
+
+import static org.poo.commands.helperMethods.Constants.UPGRADE_FEE_GOLD;
+import static org.poo.commands.helperMethods.Constants.UPGRADE_FEE_SILVER;
+import static org.poo.commands.helperMethods.Constants.UPGRADE_FEE_SILVER_TO_GOLD;
 
 import java.util.List;
 
@@ -19,9 +24,6 @@ public class UpgradePlan implements CommandInterface {
     private List<User> users;
     private ArrayNode output;
     private Graph graph;
-    private static final int UPGRADE_FEE_SILVER = 100;
-    private static final int UPGRADE_FEE_SILVER_TO_GOLD = 250;
-    private static final int UPGRADE_FEE_GOLD = 350;
 
     public UpgradePlan(final List<User> users, final Command command,
                         final ArrayNode output, final Graph graph) {
@@ -107,13 +109,10 @@ public class UpgradePlan implements CommandInterface {
 
             }
         }
+        /* checks if the account was found and prints an error for that case */
         if (!accountFound) {
-            outputNode.put("description",
-                    "Account not found");
-            outputNode.put("timestamp", command.getTimestamp());
-            resultNode.set("output", outputNode);
-            resultNode.put("timestamp", command.getTimestamp());
-            output.add(resultNode);
+            PrintOutputErrorHelper.printOutputError("Account not found", outputNode,
+                    resultNode, command, output);
         }
     }
 }

@@ -42,6 +42,12 @@ public final class FindHelper {
         return null;
     }
 
+    /**
+     * Finds an account by card number
+     * @param users list of users
+     * @param cardNumber card number
+     * @return the account with the given card number
+     */
     public static Account findAccountByCardNumber(final List<User> users, final String cardNumber) {
         for (User user : users) {
             for (Account account : user.getAccounts()) {
@@ -55,6 +61,12 @@ public final class FindHelper {
         return null;
     }
 
+    /**
+     * Finds an account by IBAN
+     * @param users list of users
+     * @param iban IBAN of the account
+     * @return the account with the given IBAN
+     */
     public static Account findAccountByIban(final List<User> users, final String iban) {
         for (User user : users) {
             for (Account account : user.getAccounts()) {
@@ -66,6 +78,12 @@ public final class FindHelper {
         return null;
     }
 
+    /**
+     * Finds a card by card number
+     * @param users list of users
+     * @param cardNumber card number
+     * @return the card with the given card number
+     */
     public static Card findCardByCardNumber(final List<User> users, final String cardNumber) {
         for (User user : users) {
             for (Account account : user.getAccounts()) {

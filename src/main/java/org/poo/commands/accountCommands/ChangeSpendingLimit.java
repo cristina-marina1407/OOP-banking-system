@@ -8,20 +8,28 @@ import org.poo.bankInformation.Command;
 import org.poo.bankInformation.User;
 import org.poo.commands.commandLogic.CommandInterface;
 import org.poo.commands.helperMethods.FindHelper;
+import org.poo.commands.helperMethods.PrintOutputErrorHelper;
 
 import java.util.List;
 
+/**
+ * This method changes the spending limit of a business account.
+ */
 public class ChangeSpendingLimit implements CommandInterface {
     private Command command;
     private List<User> users;
     private ArrayNode output;
 
-    public ChangeSpendingLimit(final List<User> users, final Command command, final ArrayNode output) {
+    public ChangeSpendingLimit(final List<User> users, final Command command,
+                               final ArrayNode output) {
         this.command = command;
         this.users = users;
         this.output = output;
     }
 
+    /**
+     * This method changes the spending limit of a business account.
+     */
     public void execute() {
         ObjectMapper objectMapper = new ObjectMapper();
         ObjectNode resultNode = objectMapper.createObjectNode();
@@ -48,12 +56,11 @@ public class ChangeSpendingLimit implements CommandInterface {
                 }
             }
         }
+        /* if the email is not the owner's email, the spending limit cannot be changed. */
         if (!checkEmail) {
-            outputNode.put("description", "You must be owner in order to change spending limit.");
-            outputNode.put("timestamp", command.getTimestamp());
-            resultNode.set("output", outputNode);
-            resultNode.put("timestamp", command.getTimestamp());
-            output.add(resultNode);
+            PrintOutputErrorHelper.printOutputError("You must be owner in order"
+                            + " to change spending limit.",
+                    outputNode, resultNode, command, output);
         }
     }
 }

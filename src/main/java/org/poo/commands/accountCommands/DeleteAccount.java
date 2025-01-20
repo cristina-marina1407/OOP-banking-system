@@ -32,12 +32,12 @@ public class DeleteAccount implements CommandInterface {
         resultNode.put("command", "deleteAccount");
         ObjectNode outputNode = objectMapper.createObjectNode();
 
-        int accountFound = 0;
+        boolean accountFound = false;
         User user = FindHelper.findUser(users, command.getEmail());
         if (user != null) {
             Account account = FindHelper.findAccount(user.getAccounts(), command.getAccount());
             if (account != null) {
-                accountFound = 1;
+                accountFound = true;
                 /* if the account has funds, it can't be deleted */
                 if (account.getBalance() != 0) {
                     outputNode.put("error",
@@ -56,7 +56,7 @@ public class DeleteAccount implements CommandInterface {
             }
         }
         /* checks if the account was not found and prints an error for that cas */
-        if (accountFound == 0) {
+        if (!accountFound) {
             outputNode.put("error",
                     "Account couldn't be deleted - see org.poo.transactions for details");
         }
