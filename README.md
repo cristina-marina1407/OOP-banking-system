@@ -1,4 +1,4 @@
-## ## Proiect Etapa 2 - J. POO Morgan Chase & Co. ##
+## ## Banking System ##
 
 ## Description
 
